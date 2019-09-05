@@ -1,36 +1,39 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package comunicacao;
 
-/**
- *
- * @author marcelo
- */
-public class Interpretador {
+import java.util.LinkedList;
+
+public class Interpretador implements ReceptorDeMensagem<byte[]>{
     
-    private Comunicador comunidador;
+    private ComunicadorTCP COMUNICADOR_TCP;
+    private ComunicadorUDP COMUNICADOR_UDP;
     
     public Interpretador() {
     
     }
     
-    public void definirComunicador(Comunicador comunicador) {
-        this.comunidador = comunicador;
+    public void definirComunicador(ComunicadorTCP comunicadorTCP, 
+            ComunicadorUDP comunicadorUDP) {
+        
+        this.COMUNICADOR_TCP = comunicadorTCP;
+        this.COMUNICADOR_UDP = comunicadorUDP;
+    }
+
+    @Override
+    public void receberMensagem(byte[] mensagem) {
+        System.out.println("[Interpretador] Mensagem recebida: " + new String(mensagem));
     }
     
-    
-    public void processar() {
-    
-    }
-    
-    public void enviarTCP() {
-    
-    }
-    
-    public void enviarUDP() {
-    
+    public void enviarMensagem(LinkedList<String> mensagens) {
+        for(String mensagem : mensagens) {
+            this.COMUNICADOR_TCP.enviarMensagem(mensagem.getBytes());
+            
+            try {
+                new Thread().sleep(100);
+            } catch(Exception e) {
+                e.printStackTrace();
+                return;
+            }
+            
+        }
     }
 }

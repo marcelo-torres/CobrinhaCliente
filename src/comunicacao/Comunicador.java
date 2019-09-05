@@ -1,86 +1,83 @@
 package comunicacao;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.InetAddress;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-/**
- *
- * @author marcelo
- */
-public class Comunicador implements Runnable {
+public abstract class Comunicador {
+    
+    /**
+     * Uma fila de mensagens que garante o acesso somente a uma thread.
+     * @param <T> Tipo da mensagem
+     */
+    protected static class GerenciadorDeFilaDeMensagens {
+        
+        private final List<byte[]> MENSAGENS;
+        private final int TAMANHO_MAXIMO;
+        
+        public GerenciadorDeFilaDeMensagens(int tamanhoMaximo) {
+            this.MENSAGENS = Collections.synchronizedList(new LinkedList<byte[]>());
+            this.TAMANHO_MAXIMO = tamanhoMaximo;
+        }
+        
+        public synchronized boolean inserir(byte[] mensagem) {
+            if(this.MENSAGENS.size() == this.TAMANHO_MAXIMO) {
+                return false;
+            }
+            this.MENSAGENS.add(mensagem);
+            return true;
+        }
+        
+        public synchronized byte[] remover() {
+            if(this.MENSAGENS.size() <= 0) {
+                return null;
+            }
+            return this.MENSAGENS.remove(0);
+        }
+        
+        public synchronized int tamanho() {
+            return this.MENSAGENS.size();
+        } 
+    }
+    
+    public enum Modo {
+        SERVIDOR(1), CLIENTE(2);
+        
+        private final int MODO;
+        
+        Modo(int valorOpcao){
+            MODO = valorOpcao;
+        }
+        
+        public int getModo() {
+            return this.MODO;
+        }
+    }
 
-    private String enderecoIPServidor;
-    private int portaServidor;
-    private Interpretador interpretador;
+    protected final Modo MODO;
+    protected boolean aberto = false;
     
-    private Socket socket;
+    protected final ReceptorDeMensagem<byte[]> RECEPTOR_DE_MENSAGEM;
+    protected final GerenciadorDeFilaDeMensagens MENSAGENS_PARA_ENVIAR;
     
-    
-    public Comunicador(String enderecoIPServidor, int portaServidor, Interpretador interpretador) {
-        this.enderecoIPServidor = enderecoIPServidor;
-        this.portaServidor = portaServidor;
-        this.interpretador = interpretador;
-        this.interpretador.definirComunicador(this);
-    }
-    
-    
-    @Override
-    public void run() {
-        this.abrirSocket(this.enderecoIPServidor, this.portaServidor);
-        System.out.println("cliente conectando");
-       
-        InputStream entradaTCP;
-        OutputStream saidaTCP;
+    public Comunicador(Modo modo,
+            ReceptorDeMensagem<byte[]> receptorDeMensagem,
+            int tamanhoDaFilaDeEnvio) {
         
-        try {
-            entradaTCP = this.socket.getInputStream();
-        } catch (IOException ioe) {
-            System.out.println(ioe.getMessage());
-            //Logger.getLogger(Comunicador.class.getName()).log(Level.SEVERE, null, ex);
+        if(modo == null || receptorDeMensagem == null ) {
+            throw new IllegalArgumentException("Não é possível criar o comunicador, parâmetro nulo");
         }
         
-        try {
-            saidaTCP = this.socket.getOutputStream();
-        } catch (IOException ioe) {
-            System.out.println(ioe.getMessage());
-            //Logger.getLogger(Comunicador.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.MODO = modo;
+        this.RECEPTOR_DE_MENSAGEM = receptorDeMensagem;
         
-        
-        
-        while(true) {
-            
-            // definir entrada
-            this.interpretador.processar();
-            
-            
-        }
-        
-
+        this.MENSAGENS_PARA_ENVIAR = new GerenciadorDeFilaDeMensagens(tamanhoDaFilaDeEnvio);
     }
     
-    private void abrirSocket(String enderecoIPServidor, int portaServidor) {
-        try {
-            this.socket = new Socket(enderecoIPServidor, portaServidor);
-        } catch (IOException ioe) {
-            throw new RuntimeException("Nao eh possivel se conectar ao servidor", ioe);
-        }
-    }
+    public abstract void iniciar(InetAddress enderecoServidor, int portaServidor) throws IOException;
     
-    // comunicacaoUDP socket
-    // tcp
-    
-    
-    //escutar
-    
-    // enviarMensagem(mensagem)
-    
-    public static void main(String[] args) {
-        Comunicador comunicador = new Comunicador("127.0.0.1", 1234);
-        new Thread(comunicador).start();
-    }
+    public abstract void enviarMensagem(byte[] mensagem);
 }
