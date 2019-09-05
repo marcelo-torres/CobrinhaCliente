@@ -56,7 +56,6 @@ public class Cliente {
     };
     
     private void iniciar() {
-       
         try {
             this.iniciarComunicacao();
         } catch(IOException ioe) {
@@ -64,17 +63,6 @@ public class Cliente {
             throw new RuntimeException("Não é possível estabelecer a conexão");
             // TODO: salvar exception no log e tentar se reconectar
         }
-            
-        java.util.LinkedList mensagens = new java.util.LinkedList();
-        mensagens.add("Mensagem TCP 1 do cliente para o servidor");
-        mensagens.add("Mensagem TCP 2 do cliente para o servidor");
-        mensagens.add("Mensagem TCP 3 do cliente para o servidor");
-        mensagens.add("Mensagem TCP 4 do cliente para o servidor");
-        mensagens.add("Mensagem TCP 5 do cliente para o servidor");
-        mensagens.add("Mensagem TCP 6 do cliente para o servidor");
-        mensagens.add("Mensagem TCP 7 do cliente para o servidor");
-        
-        this.INTERPRETADOR.enviarMensagem(mensagens);
     }
     
     public void encerrar() {
@@ -89,11 +77,12 @@ public class Cliente {
     private void iniciarComunicacao() throws IOException { 
         this.COMUNICADOR_TCP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_SERVIDOR);
         this.COMUNICADOR_UDP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_CLIENTE);
-        
     }
     
     private void fecharComunicacao() throws IOException {
+        this.COMUNICADOR_TCP.encerrarConexao();
         this.COMUNICADOR_TCP.close();
+        this.COMUNICADOR_UDP.close();
     }
     
     public static void main(String[] args) {
@@ -105,7 +94,7 @@ public class Cliente {
             throw new RuntimeException("Erro: " + uhe.getMessage());
         }
         int portaServidor = 2573;
-        int portaCliente = 1234;
+        int portaCliente = 1235;
         
         Cliente cliente = new Cliente(enderecoServidor, portaServidor, portaCliente);
         
@@ -122,7 +111,7 @@ public class Cliente {
             e.printStackTrace();
         }
         
-        //cliente.encerrar();
+        cliente.encerrar();
     }
     
 }
