@@ -7,6 +7,7 @@ import comunicacao.Interpretador;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.LinkedList;
 
 public class Cliente {
     
@@ -58,6 +59,14 @@ public class Cliente {
     private void iniciar() {
         try {
             this.iniciarComunicacao();
+            
+            LinkedList<String> mensagens = new LinkedList();
+            mensagens.add("Mensagem TCP 1");
+            mensagens.add("Mensagem TCP 2");
+            mensagens.add("Mensagem TCP 3");
+            mensagens.add("Mensagem TCP 4");
+            this.INTERPRETADOR.enviarMensagem(mensagens);
+            
         } catch(IOException ioe) {
             ioe.printStackTrace();
             throw new RuntimeException("Não é possível estabelecer a conexão");
@@ -81,6 +90,11 @@ public class Cliente {
     
     private void fecharComunicacao() throws IOException {
         this.COMUNICADOR_TCP.encerrarConexao();
+        
+        try {
+        new Thread().sleep(1000);
+        } catch(Exception e) {}
+        
         this.COMUNICADOR_TCP.close();
         this.COMUNICADOR_UDP.close();
     }
