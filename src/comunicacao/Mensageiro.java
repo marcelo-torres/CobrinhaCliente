@@ -84,7 +84,7 @@ public class Mensageiro implements Closeable {
         if(true)return;
         try {
             this.COMUNICADOR_TCP.encerrarConexao();
-            //this.COMUNICADOR_UDP.close();
+            this.COMUNICADOR_UDP.encerrarComunicacao();
 
             try {
             new Thread().sleep(1000);

@@ -75,7 +75,7 @@ public class Cliente {
             mensagens.add("Mensagem TCP 4");
             this.INTERPRETADOR.enviarMensagem(mensagens);
             
-            new Thread(new Runnable() {
+            Thread a = new Thread(new Runnable() {
                 Mensageiro m = MENSAGEIRO;
                 @Override
                 public void run() {
@@ -83,8 +83,11 @@ public class Cliente {
                         m.entregarMensagem();
                     }
                 }
-            }).start();
+            });
+            a.start();
             
+            try{new Thread().sleep(5 * 1000);} catch(Exception e){}
+            try{a.interrupt();} catch(Exception e){}
         } catch(IOException ioe) {
             ioe.printStackTrace();
             throw new RuntimeException("Não é possível estabelecer a conexão");
@@ -93,6 +96,7 @@ public class Cliente {
     }
     
     public void encerrar() {
+        System.out.println("encerrando");
         this.MENSAGEIRO.close();
     }
     

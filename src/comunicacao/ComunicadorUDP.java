@@ -7,6 +7,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 
 public class ComunicadorUDP extends Comunicador implements Closeable {
     
@@ -39,8 +40,21 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
                 try {
                     byte[] mensagem = new byte[this.TAMANHO_DA_MENSAGEM]; 
                     DatagramPacket pacote = new DatagramPacket(mensagem, mensagem.length);
-                    this.SOCKET.receive(pacote);
-                    this.FILA_RECEBIMENTO_MENSAGEM.adicionar(pacote.getData());
+                    
+                    // Loop de escuta
+                    do {
+                        try {
+                            this.SOCKET.receive(pacote);
+                            break;
+                        } catch(SocketTimeoutException ste) {
+                            if(!this.emExecucao()) break;
+                        }
+                    } while(true);
+                        
+                    byte[] dados = pacote.getData();
+                    if(dados != null) {
+                        this.FILA_RECEBIMENTO_MENSAGEM.adicionar(dados);
+                    }
                 } catch(EOFException eofe) { 
                     throw new FalhaDeComunicacaoEmTempoRealException("Conexão fechada: " + eofe.getMessage());
                 } catch(IOException ioe) {
@@ -132,6 +146,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     private UncaughtExceptionHandler GERENCIADOR_DE_EXCEPTION;
     
     private final int TAMANHO_DA_MENSAGEM;
+    private final int TEMPO_LIMITE_ESCUTA = 100;
     
     public ComunicadorUDP(Modo modo,
             FilaMonitorada<byte[]> filaDeEnvioDeMensagens,
@@ -161,6 +176,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
         } else {
             this.socket = new DatagramSocket(this.PORTA_CLIENTE);
         }
+        this.socket.setSoTimeout(this.TEMPO_LIMITE_ESCUTA);
         
         this.enderecoServidor = enderecoServidor;
         this.portaServidor = portaServidor;
@@ -177,6 +193,11 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
         super.FILA_ENVIO_MENSAGENS.adicionar(mensagem);
     }
 
+    public void encerrarComunicacao() {
+        this.receptor.pararExecucao();
+        this.enviador.pararExecucao();
+    }
+    
     @Override
     public void close() throws IOException {
         this.socket.close();

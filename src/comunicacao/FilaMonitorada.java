@@ -7,59 +7,67 @@ public class FilaMonitorada<T>{
     
     private LinkedList<T> fila = new LinkedList<T>();
 
-    private Semaphore semGeral = new Semaphore(1);
-    private Semaphore semContador = new Semaphore(0);
+    private Semaphore semaforoGeral = new Semaphore(1);
+    private Semaphore semaforoContador = new Semaphore(0);
+    
+    private boolean fechada = false;
 
     
     // TODO adicionar tamanho maximo
     
+    /*public boolean fechar() {
+        
+        
+        semaforoGeral.release();
+    }*/
     
-    public void adicionar(T item) {
-
+    public boolean adicionar(T item) {
+        if(this.fechada) return false;
+        
         try {
-            semGeral.acquire();
+            semaforoGeral.acquire();
             fila.add(item);
-            semGeral.release();
-
-            semContador.release();
-
+            semaforoGeral.release();
+            semaforoContador.release();
+            
+            return true;
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+        
+        return false;
     }
 
-    public void recolocar(T item) {
-
+    public boolean colocarNoInicio(T item) {
+        if(this.fechada) return false;
+        
         try {
-            semGeral.acquire();
+            semaforoGeral.acquire();
             fila.addFirst(item);
-            semGeral.release();
+            semaforoGeral.release();
+            semaforoContador.release();
 
-            semContador.release();
-
+            return true;
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+        
+        return false;
     }
 
     public T remover() {
-
+        if(this.fechada) return null;
+        
         try {
 
-            semContador.acquire();	
-
-            semGeral.acquire();
-
+            semaforoContador.acquire();	
+            semaforoGeral.acquire();
             T item = fila.removeFirst();
-
-            semGeral.release();				
+            semaforoGeral.release();				
 
             return item;
-
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
