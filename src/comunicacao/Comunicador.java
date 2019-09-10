@@ -71,21 +71,22 @@ public abstract class Comunicador {
     }
 
     protected final Modo MODO;
-    protected final ReceptorDeMensagem<byte[]> RECEPTOR_DE_MENSAGEM;
-    protected final GerenciadorDeFilaDeMensagens MENSAGENS_PARA_ENVIAR;
+    protected final FilaMonitorada<byte[]> FILA_ENVIO_MENSAGENS;
+    protected final FilaMonitorada<byte[]> FILA_RECEBIMENTO_MENSAGENS;
     
     public Comunicador(Modo modo,
-            ReceptorDeMensagem<byte[]> receptorDeMensagem,
-            int tamanhoMaximoDaFilaDeEnvio) {
+            FilaMonitorada<byte[]> filaDeEnvioDeMensagens,
+            FilaMonitorada<byte[]> filaDeRecebimentoDeMensagens) {
         
-        if(modo == null || receptorDeMensagem == null ) {
+        if(modo == null
+                || filaDeEnvioDeMensagens == null
+                || filaDeRecebimentoDeMensagens == null) {
             throw new IllegalArgumentException("Não é possível criar o comunicador, parâmetro nulo");
         }
         
         this.MODO = modo;
-        this.RECEPTOR_DE_MENSAGEM = receptorDeMensagem;
-        
-        this.MENSAGENS_PARA_ENVIAR = new GerenciadorDeFilaDeMensagens(tamanhoMaximoDaFilaDeEnvio);
+        this.FILA_ENVIO_MENSAGENS = filaDeEnvioDeMensagens;
+        this.FILA_RECEBIMENTO_MENSAGENS = filaDeRecebimentoDeMensagens;
     }
     
     public abstract void iniciar(InetAddress enderecoServidor, int portaServidor) throws IOException;

@@ -4,6 +4,7 @@ import comunicacao.ComunicadorTCP;
 import comunicacao.ComunicadorUDP;
 import comunicacao.FalhaDeComunicacaoEmTempoRealException;
 import comunicacao.Interpretador;
+import comunicacao.Mensageiro;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,8 +17,7 @@ public class Cliente {
     private final int PORTA_CLIENTE;
     
     private final Interpretador INTERPRETADOR;
-    private final ComunicadorTCP COMUNICADOR_TCP;
-    private final ComunicadorUDP COMUNICADOR_UDP;
+    private final Mensageiro MENSAGEIRO;
     
     
     public Cliente(InetAddress enderecoServidor, int portaServidor, int portaCliente) {
@@ -26,6 +26,13 @@ public class Cliente {
         this.PORTA_CLIENTE = portaCliente;
         
         this.INTERPRETADOR = new Interpretador();
+        this.MENSAGEIRO = new Mensageiro(this.INTERPRETADOR, portaCliente, enderecoServidor, portaServidor, portaServidor);
+        
+        /*Interpretador interpretador,
+            int portaEscutarUDP,
+            InetAddress enderecoDoServidor,
+            int portaTCPDoServidor,
+            int portaUDPDoServidor
         
         this.COMUNICADOR_TCP = new ComunicadorTCP(
                 Modo.CLIENTE,
@@ -41,24 +48,25 @@ public class Cliente {
                 1024,
                 this.PORTA_CLIENTE);
         
-        this.INTERPRETADOR.definirComunicador(COMUNICADOR_TCP, COMUNICADOR_UDP);
+        this.INTERPRETADOR.definirComunicador(COMUNICADOR_TCP, COMUNICADOR_UDP);*/
     }
     
     private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
         public void uncaughtException(Thread th, Throwable ex) {
             System.out.println("Uncaught exception: " + ex);
             ex.printStackTrace();
-            try {
-                if(false)COMUNICADOR_TCP.close();
+            /*try {
+                if(false)//COMUNICADOR_TCP.close();
             } catch(IOException ioe) {
                 //throw new ComunicadorException("Erro no comunicador", ex);
-            }
+            }*/
         }
     };
     
     private void iniciar() {
         try {
-            this.iniciarComunicacao();
+            //this.iniciarComunicacao();
+            this.MENSAGEIRO.iniciar();
             
             LinkedList<String> mensagens = new LinkedList();
             mensagens.add("Mensagem TCP 1");
@@ -66,6 +74,16 @@ public class Cliente {
             mensagens.add("Mensagem TCP 3");
             mensagens.add("Mensagem TCP 4");
             this.INTERPRETADOR.enviarMensagem(mensagens);
+            
+            new Thread(new Runnable() {
+                Mensageiro m = MENSAGEIRO;
+                @Override
+                public void run() {
+                    while(true) {
+                        m.entregarMensagem();
+                    }
+                }
+            }).start();
             
         } catch(IOException ioe) {
             ioe.printStackTrace();
@@ -75,28 +93,7 @@ public class Cliente {
     }
     
     public void encerrar() {
-        try {
-            this.fecharComunicacao();
-        } catch(IOException ioe) {
-            throw new RuntimeException("Erro ao fechar a conexão");
-            // TODO: salvar exception no log e tentar se reconectar
-        }
-    }
-    
-    private void iniciarComunicacao() throws IOException { 
-        this.COMUNICADOR_TCP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_SERVIDOR);
-        this.COMUNICADOR_UDP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_CLIENTE);
-    }
-    
-    private void fecharComunicacao() throws IOException {
-        this.COMUNICADOR_TCP.encerrarConexao();
-        
-        try {
-        new Thread().sleep(1000);
-        } catch(Exception e) {}
-        
-        this.COMUNICADOR_TCP.close();
-        this.COMUNICADOR_UDP.close();
+        this.MENSAGEIRO.close();
     }
     
     public static void main(String[] args) {

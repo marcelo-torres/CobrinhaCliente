@@ -18,18 +18,18 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     
         private final DatagramSocket SOCKET;
         private final int TAMANHO_DA_MENSAGEM;
-        private final ReceptorDeMensagem<byte[]> RECEPTOR_DE_MENSAGEM;
+        private final FilaMonitorada<byte[]> FILA_RECEBIMENTO_MENSAGEM;
     
         private boolean executando;
         
         public Receptor(DatagramSocket socket,
                 int tamanhoDaMensagem, 
-                ReceptorDeMensagem<byte[]>  receptorDeMensagem) 
+                FilaMonitorada<byte[]> filaDeRecebimentoDeMensagens) 
                 throws IOException {
             
             this.SOCKET = socket;
             this.TAMANHO_DA_MENSAGEM = tamanhoDaMensagem;
-            this.RECEPTOR_DE_MENSAGEM = receptorDeMensagem;
+            this.FILA_RECEBIMENTO_MENSAGEM = filaDeRecebimentoDeMensagens;
         }
         
         @Override
@@ -40,7 +40,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
                     byte[] mensagem = new byte[this.TAMANHO_DA_MENSAGEM]; 
                     DatagramPacket pacote = new DatagramPacket(mensagem, mensagem.length);
                     this.SOCKET.receive(pacote);
-                    this.RECEPTOR_DE_MENSAGEM.receberMensagem(pacote.getData());
+                    this.FILA_RECEBIMENTO_MENSAGEM.adicionar(pacote.getData());
                 } catch(EOFException eofe) { 
                     throw new FalhaDeComunicacaoEmTempoRealException("Conexão fechada: " + eofe.getMessage());
                 } catch(IOException ioe) {
@@ -71,27 +71,27 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
         private final DatagramSocket SOCKET;
         private final InetAddress ENDERECO_SERVIDOR;
         private final int PORTA_SERVIDOR;
-        private final GerenciadorDeFilaDeMensagens MENSAGENS_PARA_ENVIAR;
+        private final FilaMonitorada<byte[]> FILA_ENVIO_MENSAGENS;
         
         private boolean executando;
         
         public Enviador(DatagramSocket socket,
                 InetAddress enderecoServidor,
                 int porta, 
-                GerenciadorDeFilaDeMensagens mensagensParaEnviar) 
+                FilaMonitorada<byte[]> filaDeEnvioDeMensagens) 
                 throws IOException {
             
             this.SOCKET = socket;
             this.ENDERECO_SERVIDOR = enderecoServidor;
             this.PORTA_SERVIDOR = porta;
-            this.MENSAGENS_PARA_ENVIAR = mensagensParaEnviar;
+            this.FILA_ENVIO_MENSAGENS = filaDeEnvioDeMensagens;
         }
         
         @Override
         public void run() {
-            this.executando = (this.MENSAGENS_PARA_ENVIAR.tamanho() > 0);
+            this.executando = true;
             while(this.emExecucao()) {    
-                byte[] mensagem = this.MENSAGENS_PARA_ENVIAR.remover();
+                byte[] mensagem = this.FILA_ENVIO_MENSAGENS.remover();
                 if(mensagem != null) {
                     try {
                         DatagramPacket pacote = new DatagramPacket(
@@ -104,11 +104,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
                     } catch(IOException ioe) {
                         throw new FalhaDeComunicacaoEmTempoRealException("Não foi possível enviar a mensagem: " + ioe.getMessage());
                     }
-                } 
-                
-                // Dorme para dar tempo de outras mensagens serem colocadas na fila
-                this.esperar(10);
-                this.executando = (this.MENSAGENS_PARA_ENVIAR.tamanho() > 0);
+                }
             }
         }
         
@@ -118,14 +114,6 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
         
         public synchronized void pararExecucao() {
             this.executando = false;
-        }
-        
-        private void esperar(int tempo) {
-            try {
-                new Thread().sleep(tempo);
-            } catch(InterruptedException ie) {
-                // Registra no log
-            }
         }
     }
     
@@ -146,13 +134,13 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     private final int TAMANHO_DA_MENSAGEM;
     
     public ComunicadorUDP(Modo modo,
-            ReceptorDeMensagem<byte[]> receptorDeMensagem,
+            FilaMonitorada<byte[]> filaDeEnvioDeMensagens,
+            FilaMonitorada<byte[]> filaDeRecebimentoDeMensagens,
             UncaughtExceptionHandler gerenciadorDeException,
-            int tamanhoMaximoDaFilaDeEnvio,
             int tamanhoDaMensagem,
             int portaCliente) {
         
-        super(modo, receptorDeMensagem, tamanhoMaximoDaFilaDeEnvio);
+        super(modo, filaDeEnvioDeMensagens, filaDeRecebimentoDeMensagens);
         
         if(gerenciadorDeException == null) {
             throw new IllegalArgumentException("O gerenciador de exception não pode ser nulo");
@@ -179,19 +167,14 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
         this.prepararThreadsDeComunicacao();
         if(super.MODO == Modo.CLIENTE) {
             this.threadReceptor.start();
+        } else {
+            this.threadEnviador.start();
         }
     }
     
     @Override
     public synchronized void enviarMensagem(byte[] mensagem) {
-        super.MENSAGENS_PARA_ENVIAR.inserir(mensagem);
-        
-        // Uma thread de envio permanece ativa apenas enquanto existem mensagens
-        // na fila ou ate ser interrompida.
-        if(!this.threadEnviador.isAlive()) {
-            this.criarThreadEnviador();
-            this.threadEnviador.start();
-        }
+        super.FILA_ENVIO_MENSAGENS.adicionar(mensagem);
     }
 
     @Override
@@ -205,12 +188,12 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
                     this.socket, 
                     this.enderecoServidor, 
                     this.portaServidor, 
-                    super.MENSAGENS_PARA_ENVIAR);
+                    super.FILA_ENVIO_MENSAGENS);
             
             this.receptor = new Receptor(
                     this.socket, 
                     this.TAMANHO_DA_MENSAGEM, 
-                    super.RECEPTOR_DE_MENSAGEM);
+                    super.FILA_RECEBIMENTO_MENSAGENS);
                 
             this.criarThreadReceptor();
             this.criarThreadEnviador();
