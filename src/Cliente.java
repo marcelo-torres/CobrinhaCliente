@@ -73,7 +73,9 @@ public class Cliente {
             mensagens.add("Mensagem TCP 2");
             mensagens.add("Mensagem TCP 3");
             mensagens.add("Mensagem TCP 4");
-            this.INTERPRETADOR.enviarMensagem(mensagens);
+            for(String mensagem : mensagens) {
+                this.MENSAGEIRO.enviarMensagemTCP(mensagem.getBytes());
+            }
             
             Thread a = new Thread(new Runnable() {
                 Mensageiro m = MENSAGEIRO;
