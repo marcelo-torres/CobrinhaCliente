@@ -27,28 +27,6 @@ public class Cliente {
         
         this.INTERPRETADOR = new Interpretador();
         this.MENSAGEIRO = new Mensageiro(this.INTERPRETADOR, portaCliente, enderecoServidor, portaServidor, portaServidor);
-        
-        /*Interpretador interpretador,
-            int portaEscutarUDP,
-            InetAddress enderecoDoServidor,
-            int portaTCPDoServidor,
-            int portaUDPDoServidor
-        
-        this.COMUNICADOR_TCP = new ComunicadorTCP(
-                Modo.CLIENTE,
-                this.INTERPRETADOR,
-                gerenciadorDeException,
-                10);
-        
-        this.COMUNICADOR_UDP = new ComunicadorUDP(
-                Comunicador.Modo.CLIENTE,
-                this.INTERPRETADOR,
-                gerenciadorDeException,
-                10,
-                1024,
-                this.PORTA_CLIENTE);
-        
-        this.INTERPRETADOR.definirComunicador(COMUNICADOR_TCP, COMUNICADOR_UDP);*/
     }
     
     private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
@@ -76,20 +54,6 @@ public class Cliente {
             for(String mensagem : mensagens) {
                 this.MENSAGEIRO.enviarMensagemTCP(mensagem.getBytes());
             }
-            
-            Thread a = new Thread(new Runnable() {
-                Mensageiro m = MENSAGEIRO;
-                @Override
-                public void run() {
-                    while(true) {
-                        m.entregarMensagem();
-                    }
-                }
-            });
-            a.start();
-            
-            try{new Thread().sleep(5 * 1000);} catch(Exception e){}
-            try{a.interrupt();} catch(Exception e){}
         } catch(IOException ioe) {
             ioe.printStackTrace();
             throw new RuntimeException("Não é possível estabelecer a conexão");
@@ -119,11 +83,10 @@ public class Cliente {
             cliente.iniciar();
         } catch(FalhaDeComunicacaoEmTempoRealException e) {
             e.printStackTrace();
-            System.out.println("morreu");
         }
         
         try{
-            new Thread().sleep(1000);
+            new Thread().sleep(3 * 1000);
         } catch(Exception e) {
             e.printStackTrace();
         }

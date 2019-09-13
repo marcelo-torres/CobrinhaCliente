@@ -5,15 +5,19 @@ import java.util.concurrent.*;
 
 public class FilaMonitorada<T>{
     
-    private LinkedList<T> fila = new LinkedList<T>();
+    private final LinkedList<T> FILA;
+    private final int TAMANHO_MAXIMO;
 
-    private Semaphore semaforoGeral = new Semaphore(1);
-    private Semaphore semaforoContador = new Semaphore(0);
+    private final Semaphore SEMAFORO_GERAL;
+    private final Semaphore SEMAFORO_CONTADOR;
     
     private boolean fechada = false;
     
-    public FilaMonitorada() {
-        //System.out.println("Iniciando com o semáforo: " + semaforoGeral);
+    public FilaMonitorada(int tamanhoMaximo) {
+        this.FILA = new LinkedList();
+        this.TAMANHO_MAXIMO = tamanhoMaximo;
+        this.SEMAFORO_GERAL = new Semaphore(1);
+        this.SEMAFORO_CONTADOR = new Semaphore(0);
     }
     
     public void fechar() {
@@ -22,10 +26,10 @@ public class FilaMonitorada<T>{
         
         try {
             //System.out.println("[inserir 1] tentando acquire com o semáforo: " + semaforoGeral);
-            semaforoGeral.acquire();
-            fila.add(null);
-            semaforoGeral.release();
-            semaforoContador.release();
+            SEMAFORO_GERAL.acquire();
+            FILA.add(null);
+            SEMAFORO_GERAL.release();
+            SEMAFORO_CONTADOR.release();
             
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
@@ -38,12 +42,12 @@ public class FilaMonitorada<T>{
         
         try {
             //System.out.println("[inserir 1] tentando acquire com o semáforo: " + semaforoGeral);
-            semaforoGeral.acquire();
+            SEMAFORO_GERAL.acquire();
             //System.out.println("[inserir 2] acquire obtido e o semáforo: " + semaforoGeral);
-            fila.add(item);
-            semaforoGeral.release();
+            FILA.add(item);
+            SEMAFORO_GERAL.release();
             //System.out.println("[inserir 3] semáforo geral released: " + semaforoGeral);
-            semaforoContador.release();
+            SEMAFORO_CONTADOR.release();
             
             return true;
         } catch (InterruptedException e) {
@@ -58,10 +62,10 @@ public class FilaMonitorada<T>{
         if(this.fechada) return false;
         
         try {
-            semaforoGeral.acquire();
-            fila.addFirst(item);
-            semaforoGeral.release();
-            semaforoContador.release();
+            SEMAFORO_GERAL.acquire();
+            FILA.addFirst(item);
+            SEMAFORO_GERAL.release();
+            SEMAFORO_CONTADOR.release();
 
             return true;
         } catch (InterruptedException e) {
@@ -76,12 +80,12 @@ public class FilaMonitorada<T>{
         if(this.fechada) return null;
         
         try {
-            semaforoContador.acquire();
+            SEMAFORO_CONTADOR.acquire();
             //System.out.println("[remover 1] tentando acquire com o semáforo: " + semaforoGeral);
-            semaforoGeral.acquire();
+            SEMAFORO_GERAL.acquire();
             //System.out.println("[remover 2] acquire obtido e o semáforo: " + semaforoGeral);
-            T item = fila.removeFirst();
-            semaforoGeral.release();		
+            T item = FILA.removeFirst();
+            SEMAFORO_GERAL.release();		
             //System.out.println("[remover 3] semáforo released: " + semaforoGeral);
             return item;
         } catch (InterruptedException e) {
