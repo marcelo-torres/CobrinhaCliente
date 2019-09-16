@@ -5,6 +5,8 @@ import java.util.concurrent.*;
 
 public class FilaMonitorada<T>{
     
+    public final T FIM;
+    
     private final LinkedList<T> FILA;
     private final int TAMANHO_MAXIMO;
 
@@ -13,7 +15,10 @@ public class FilaMonitorada<T>{
     
     private boolean fechada = false;
     
+    // TODO implementar tamanho 
+    
     public FilaMonitorada(int tamanhoMaximo) {
+        this.FIM = (T)new Object();
         this.FILA = new LinkedList();
         this.TAMANHO_MAXIMO = tamanhoMaximo;
         this.SEMAFORO_GERAL = new Semaphore(1);

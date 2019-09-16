@@ -50,10 +50,12 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
                             if(!this.emExecucao()) break;
                         }
                     } while(true);
-                        
-                    byte[] dados = pacote.getData();
-                    if(dados != null) {
-                        this.FILA_RECEBIMENTO_MENSAGEM.adicionar(dados);
+                    
+                    if(this.emExecucao()) {
+                        byte[] dados = pacote.getData();
+                        if(dados != null) {
+                            this.FILA_RECEBIMENTO_MENSAGEM.adicionar(dados);
+                        }
                     }
                 } catch(EOFException eofe) { 
                     throw new FalhaDeComunicacaoEmTempoRealException("Conexão fechada: " + eofe.getMessage());

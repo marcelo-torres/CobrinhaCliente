@@ -109,6 +109,7 @@ public class Mensageiro implements Closeable {
         
         try {
             this.COMUNICADOR_UDP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_UDP_SERVIDOR);
+            if(false) throw new IOException();
         } catch(IOException ioe) {
             this.COMUNICADOR_TCP.encerrarConexao();
             this.COMUNICADOR_TCP.close();
@@ -137,13 +138,17 @@ public class Mensageiro implements Closeable {
             this.COMUNICADOR_TCP.close();
             this.COMUNICADOR_UDP.close();
         } catch(IOException ioe) {
+            try {
+                this.COMUNICADOR_TCP.close();
+            } catch(IOException ioee) {
+                ioee.printStackTrace();
+            }
             ioe.printStackTrace();
         }
         
         this.entregador.parar();
         if(this.threadDeEntrega.isAlive()) {
             this.threadDeEntrega.interrupt();
-            System.out.println("matou 1");
         }
     }
     
@@ -159,6 +164,7 @@ public class Mensageiro implements Closeable {
     private void prepararThreadDeEntrega() {
         this.entregador = new Entregador(this.INTERPRETADOR, this.FILA_RECEBIMENTO_MENSAGENS);
         this.threadDeEntrega = new Thread(this.entregador);
+        this.threadDeEntrega.setName("Entrega_Mensagem");
     }
     
     
@@ -167,6 +173,7 @@ public class Mensageiro implements Closeable {
             System.out.println("Uncaught exception: " + ex);
             ex.printStackTrace();
             try {
+                COMUNICADOR_TCP.close();
                 if(false)COMUNICADOR_TCP.close();
             } catch(IOException ioe) {
                 //throw new ComunicadorException("Erro no comunicador", ex);

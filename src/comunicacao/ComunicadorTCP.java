@@ -81,6 +81,7 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
 
         @Override
         public void close() throws IOException {
+            if(this.emExecucao()) this.pararExecucao();
             this.ENTRADA.close();
         }
     }
@@ -135,6 +136,7 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
         
         @Override
         public void close() throws IOException {
+            if(this.emExecucao()) this.pararExecucao();
             this.SAIDA.close();
         }
         
@@ -191,6 +193,7 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
     
     public void encerrarConexao() throws IOException {
         this.enviador.enviarPedidoFechamentoDaConexao();
+        this.enviador.pararExecucao();
     }
     
     @Override
