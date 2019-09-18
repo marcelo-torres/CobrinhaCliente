@@ -26,7 +26,7 @@ public class Cliente {
         this.PORTA_CLIENTE = portaCliente;
         
         this.INTERPRETADOR = new Interpretador();
-        this.MENSAGEIRO = new Mensageiro(this.INTERPRETADOR, portaCliente, enderecoServidor, portaServidor, portaServidor);
+        this.MENSAGEIRO = new Mensageiro(this.INTERPRETADOR, portaCliente, enderecoServidor);
     }
     
     private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
@@ -43,8 +43,8 @@ public class Cliente {
     
     private void iniciar() {
         try {
-            //this.iniciarComunicacao();
-            this.MENSAGEIRO.iniciar();
+            this.MENSAGEIRO.iniciaComunicacaoTCP(this.PORTA_SERVIDOR);
+            this.MENSAGEIRO.iniciarComunicacaoUDP(this.PORTA_SERVIDOR);
             
             LinkedList<String> mensagens = new LinkedList();
             mensagens.add("Mensagem TCP 1");
@@ -62,7 +62,7 @@ public class Cliente {
     }
     
     public void encerrar() {
-        System.out.println("encerrando");
+        System.out.println("encerrando 1");
         this.MENSAGEIRO.close();
     }
     

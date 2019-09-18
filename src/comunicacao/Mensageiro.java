@@ -57,8 +57,6 @@ public class Mensageiro implements Closeable {
     private final int TAMANHO_MENSAGEM_UDP = 1024;
     
     private final InetAddress ENDERECO_SERVIDOR;
-    private final int PORTA_TCP_SERVIDOR;
-    private final int PORTA_UDP_SERVIDOR;
     
     private Entregador entregador;
     private Thread threadDeEntrega;
@@ -66,15 +64,11 @@ public class Mensageiro implements Closeable {
     public Mensageiro(
             Interpretador interpretador,
             int portaEscutarUDP,
-            InetAddress enderecoDoServidor,
-            int portaTCPDoServidor,
-            int portaUDPDoServidor) {
+            InetAddress enderecoDoServidor) {
     
         this.INTERPRETADOR = interpretador;
         
         this.ENDERECO_SERVIDOR = enderecoDoServidor;
-        this.PORTA_TCP_SERVIDOR = portaTCPDoServidor;
-        this.PORTA_UDP_SERVIDOR = portaUDPDoServidor;
         
         this.FILA_RECEBIMENTO_MENSAGENS = new FilaMonitorada<>(this.TAMANHO_FILA_RECEBIMENTO);
         this.FILA_ENVIO_MENSAGENS_TCP = new FilaMonitorada<>(this.TAMANHO_FILA_ENVIO_TCP);
@@ -93,37 +87,36 @@ public class Mensageiro implements Closeable {
                 this.gerenciadorDeException,
                 this.TAMANHO_MENSAGEM_UDP,
                 portaEscutarUDP);
-    }
-    
-    
-    public void iniciar() throws IOException {
-        try {
-            this.COMUNICADOR_TCP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
-        } catch(IOException ioe) {
-            ioe.printStackTrace(); // REGISTRAR NO LOG
-            throw new IOException("Não é possível se comunicar com o servidor.");
-        } catch(IllegalThreadStateException itse) {
-            itse.printStackTrace(); // REGISTRAR NO LOG
-            return;
-        }
-        
-        try {
-            this.COMUNICADOR_UDP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_UDP_SERVIDOR);
-            if(false) throw new IOException();
-        } catch(IOException ioe) {
-            this.COMUNICADOR_TCP.encerrarConexao();
-            this.COMUNICADOR_TCP.close();
-            ioe.printStackTrace(); // REGISTRAR NO LOG
-            throw new IOException("Não é possível se comunicar com o servidor.");
-        } catch(IllegalThreadStateException itse) {
-            this.COMUNICADOR_TCP.encerrarConexao();
-            this.COMUNICADOR_TCP.close();
-            itse.printStackTrace(); // REGISTRAR NO LOG
-            return;
-        }
         
         this.prepararThreadDeEntrega();
-        this.threadDeEntrega.start();
+    }
+    
+    public void iniciaComunicacaoTCP(int portaTCPDoServidor) throws IOException {
+        try {
+            this.COMUNICADOR_TCP.iniciar(this.ENDERECO_SERVIDOR, portaTCPDoServidor);
+            if(!this.threadDeEntrega.isAlive()) {
+                this.threadDeEntrega.start();
+            }
+        } catch(IOException ioe) {
+            ioe.printStackTrace(); // REGISTRAR NO LOG
+            throw new IOException("Não é possível se comunicar com o servidor.");
+        } catch(IllegalThreadStateException itse) {
+            itse.printStackTrace(); // REGISTRAR NO LOG
+        }
+    }
+    
+    public void iniciarComunicacaoUDP(int portaUDPDoServidor) throws IOException {
+        try {
+            this.COMUNICADOR_UDP.iniciar(this.ENDERECO_SERVIDOR, portaUDPDoServidor);
+            if(!this.threadDeEntrega.isAlive()) {
+                this.threadDeEntrega.start();
+            }
+        } catch(IOException ioe) {
+            ioe.printStackTrace(); // REGISTRAR NO LOG
+            throw new IOException("Não é possível se comunicar com o servidor.");
+        } catch(IllegalThreadStateException itse) {
+            itse.printStackTrace(); // REGISTRAR NO LOG
+        }
     }
     
     @Override
