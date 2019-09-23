@@ -1,7 +1,3 @@
-import comunicacao.Comunicador;
-import comunicacao.Comunicador.Modo;
-import comunicacao.ComunicadorTCP;
-import comunicacao.ComunicadorUDP;
 import comunicacao.FalhaDeComunicacaoEmTempoRealException;
 import comunicacao.Interpretador;
 import comunicacao.Mensageiro;
@@ -12,21 +8,23 @@ import java.util.LinkedList;
 
 public class Cliente {
     
+    private final int PORTA_ESCUTAR_UDP;
     private final InetAddress ENDERECO_SERVIDOR;
-    private final int PORTA_SERVIDOR;
-    private final int PORTA_CLIENTE;
+    private final int PORTA_TCP_SERVIDOR;
+    private final int PORTA_UDP_SERVIDOR;
     
     private final Interpretador INTERPRETADOR;
     private final Mensageiro MENSAGEIRO;
     
     
-    public Cliente(InetAddress enderecoServidor, int portaServidor, int portaCliente) {
+    public Cliente(int portaEscutarUDP, InetAddress enderecoServidor, int portaTCPServidor, int portaUDPServidor) {
+        this.PORTA_ESCUTAR_UDP = portaEscutarUDP;
         this.ENDERECO_SERVIDOR = enderecoServidor;
-        this.PORTA_SERVIDOR = portaServidor;
-        this.PORTA_CLIENTE = portaCliente;
+        this.PORTA_TCP_SERVIDOR = portaTCPServidor;
+        this.PORTA_UDP_SERVIDOR = portaUDPServidor;
         
         this.INTERPRETADOR = new Interpretador();
-        this.MENSAGEIRO = new Mensageiro(this.INTERPRETADOR, portaCliente, enderecoServidor, portaServidor, portaServidor);
+        this.MENSAGEIRO = new Mensageiro(this.INTERPRETADOR, this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.PORTA_UDP_SERVIDOR);
     }
     
     private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
@@ -44,7 +42,8 @@ public class Cliente {
     private void iniciar() {
         try {
             //this.iniciarComunicacao();
-            this.MENSAGEIRO.iniciar();
+            this.MENSAGEIRO.iniciarTCP();
+            this.MENSAGEIRO.iniciarUDP();
             
             LinkedList<String> mensagens = new LinkedList();
             mensagens.add("Mensagem TCP 1");
@@ -68,16 +67,17 @@ public class Cliente {
     
     public static void main(String[] args) {
         
+        int portaEscutarUDP = 1235;
         InetAddress enderecoServidor = null;
         try {
             enderecoServidor = InetAddress.getByName("127.0.0.1");
         } catch(UnknownHostException uhe) {
             throw new RuntimeException("Erro: " + uhe.getMessage());
-        }
-        int portaServidor = 2573;
-        int portaCliente = 1235;
+        }     
+        int portaTCPServidor = 2573;
+        int portaUDPServidor = -1;
         
-        Cliente cliente = new Cliente(enderecoServidor, portaServidor, portaCliente);
+        Cliente cliente = new Cliente(portaEscutarUDP, enderecoServidor, portaTCPServidor, portaUDPServidor);
         
         try{
             cliente.iniciar();
@@ -86,7 +86,7 @@ public class Cliente {
         }
         
         try{
-            new Thread().sleep(3 * 1000);
+            new Thread().sleep(10 * 1000);
         } catch(Exception e) {
             e.printStackTrace();
         }

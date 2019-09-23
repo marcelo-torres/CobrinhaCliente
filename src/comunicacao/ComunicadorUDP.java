@@ -15,13 +15,11 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
      * Responsavel pelo recebimento de mensagens. Quando uma mensagem eh
      * recebida encaminha para o ReceptorDeMensagem associado.
      */
-    private static class Receptor implements Runnable { 
+    private static class Receptor extends ThreadEscrava implements Runnable { 
     
         private final DatagramSocket SOCKET;
         private final int TAMANHO_DA_MENSAGEM;
         private final FilaMonitorada<byte[]> FILA_RECEBIMENTO_MENSAGEM;
-    
-        private boolean executando;
         
         public Receptor(DatagramSocket socket,
                 int tamanhoDaMensagem, 
@@ -35,8 +33,8 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
         
         @Override
         public void run() {
-            this.executando = true;
-            while(this.emExecucao()) {
+            super.executar();
+            while(super.emExecucao()) {
                 try {
                     byte[] mensagem = new byte[this.TAMANHO_DA_MENSAGEM]; 
                     DatagramPacket pacote = new DatagramPacket(mensagem, mensagem.length);
@@ -48,6 +46,8 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
                             break;
                         } catch(SocketTimeoutException ste) {
                             if(!this.emExecucao()) break;
+                        } catch(java.net.SocketException se) {
+                            throw new FalhaDeComunicacaoEmTempoRealException("Erro no socket: " + se.getMessage());
                         }
                     } while(true);
                     
@@ -65,14 +65,6 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
                 }
             }
         }
-        
-        public synchronized boolean emExecucao() {
-            return this.executando;
-        }
-        
-        public synchronized void pararExecucao() {
-            this.executando = false;
-        }
     }
     
     
@@ -82,14 +74,12 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
      * possivel que o metodo run() seja interrompido pelos metodo
      * pararExecucao() ou close().
      */
-    private static class Enviador implements Runnable {
+    private static class Enviador extends ThreadEscrava implements Runnable {
         
         private final DatagramSocket SOCKET;
         private final InetAddress ENDERECO_SERVIDOR;
         private final int PORTA_SERVIDOR;
         private final FilaMonitorada<byte[]> FILA_ENVIO_MENSAGENS;
-        
-        private boolean executando;
         
         public Enviador(DatagramSocket socket,
                 InetAddress enderecoServidor,
@@ -105,8 +95,8 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
         
         @Override
         public void run() {
-            this.executando = true;
-            while(this.emExecucao()) {    
+            super.executar();
+            while(super.emExecucao()) {    
                 byte[] mensagem = this.FILA_ENVIO_MENSAGENS.remover();
                 if(mensagem != null) {
                     try {
@@ -123,14 +113,6 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
                 }
             }
         }
-        
-        public synchronized boolean emExecucao() {
-            return this.executando;
-        }
-        
-        public synchronized void pararExecucao() {
-            this.executando = false;
-        }
     }
     
     /* ###################################################################### */
@@ -139,7 +121,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     
     private InetAddress enderecoServidor;
     private int portaServidor;
-    private final int PORTA_CLIENTE;
+    private final int PORTA_ESCUTA;
     
     private Thread threadReceptor;
     private Thread threadEnviador;
@@ -155,7 +137,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
             FilaMonitorada<byte[]> filaDeRecebimentoDeMensagens,
             UncaughtExceptionHandler gerenciadorDeException,
             int tamanhoDaMensagem,
-            int portaCliente) {
+            int PORTA_ESCUTA) {
         
         super(modo, filaDeEnvioDeMensagens, filaDeRecebimentoDeMensagens);
         
@@ -168,15 +150,15 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
             throw new IllegalArgumentException("O tamanho da mensagem não pode ser menor do que 1");
         }
         this.TAMANHO_DA_MENSAGEM = tamanhoDaMensagem;
-        this.PORTA_CLIENTE = portaCliente;
+        this.PORTA_ESCUTA = PORTA_ESCUTA;
     }
     
     @Override
     public void iniciar(InetAddress enderecoServidor, int portaServidor) throws IOException {
-        if(this.PORTA_CLIENTE < 1) {
+        if(this.PORTA_ESCUTA < 1) {
             this.socket = new DatagramSocket();
         } else {
-            this.socket = new DatagramSocket(this.PORTA_CLIENTE);
+            this.socket = new DatagramSocket(this.PORTA_ESCUTA);
         }
         this.socket.setSoTimeout(this.TEMPO_LIMITE_ESCUTA);
         

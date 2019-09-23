@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * Gerencia uma comunicacao TCP entre o cliente e o servidor. As mensagens a
@@ -21,31 +22,35 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
      * Responsavel pelo recebimento de mensagens. Quando uma mensagem eh
      * recebida encaminha para o ReceptorDeMensagem associado.
      */
-    private static class Receptor implements Runnable, Closeable { 
+    private static class Receptor extends ThreadEscrava implements Runnable, Closeable { 
     
         private final ObjectInputStream ENTRADA;
         private final FilaMonitorada<byte[]> FILA_RECEBIMENTO_MENSAGENS;
         private final Enviador ENVIADOR;
-    
-        private boolean executando;
+        private final ControladorKeepAlive CONTROLADOR_KEEP_ALIVE;
         
         public Receptor(
                 ObjectInputStream entrada, 
                 FilaMonitorada<byte[]> filaDeRecebimentoDeMensagens,
-                Enviador enviador) {
+                Enviador enviador,
+                ControladorKeepAlive controladorKeepAlive) {
             
             this.ENTRADA = entrada;
             this.FILA_RECEBIMENTO_MENSAGENS = filaDeRecebimentoDeMensagens;
             this.ENVIADOR = enviador;
+            this.CONTROLADOR_KEEP_ALIVE = controladorKeepAlive;
         }
         
         @Override
         public void run() {
-            this.executando = true;
-            while(this.emExecucao()) {   
+            super.executar();
+            while(super.emExecucao()) {   
                 try {
-                    TipoMensagem controle = (TipoMensagem) this.ENTRADA.readObject(); 
+                    TipoMensagem controle = (TipoMensagem) this.ENTRADA.readObject();
+                    this.CONTROLADOR_KEEP_ALIVE.incrementarQuantidadeDeMensagensRecebidas();
                     switch (controle) {
+                        case KEEP_ALIVE:
+                            continue;
                         case FECHAR_CONEXAO:
                             this.pararExecucao();
                             continue;
@@ -70,18 +75,10 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
                 }
             }
         }
-        
-        public synchronized boolean emExecucao() {
-            return this.executando;
-        }
-        
-        public synchronized void pararExecucao() {
-            this.executando = false;
-        }
 
         @Override
         public void close() throws IOException {
-            if(this.emExecucao()) this.pararExecucao();
+            if(super.emExecucao()) super.pararExecucao();
             this.ENTRADA.close();
         }
     }
@@ -93,12 +90,10 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
      * possivel que o metodo run() seja interrompido pelos metodo
      * pararExecucao() ou close().
      */
-    private static class Enviador implements Runnable, Closeable {
+    private static class Enviador extends ThreadEscrava implements Runnable, Closeable {
         
         private final ObjectOutputStream SAIDA;
         private final FilaMonitorada<byte[]>  FILA_ENVIO_MENSAGENS;
-        
-        private boolean executando;
         
         public Enviador(
                 ObjectOutputStream saida, 
@@ -110,9 +105,8 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
         
         @Override
         public void run() {
-            this.executando = true;
-            
-            while(this.emExecucao()) {    
+            super.executar();
+            while(super.emExecucao()) {    
                 byte[] mensagem = this.FILA_ENVIO_MENSAGENS.remover();
                 if(mensagem != null) {
                     try {
@@ -126,17 +120,9 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
             }
         }
         
-        public synchronized boolean emExecucao() {
-            return this.executando;
-        }
-        
-        public synchronized void pararExecucao() {
-            this.executando = false;
-        }
-        
         @Override
         public void close() throws IOException {
-            if(this.emExecucao()) this.pararExecucao();
+            if(super.emExecucao()) super.pararExecucao();
             this.SAIDA.close();
         }
         
@@ -158,8 +144,12 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
     private Thread threadReceptor;
     private Thread threadEnviador;
     private Receptor receptor;
-    private Enviador enviador; 
+    private Enviador enviador;
+    private ControladorKeepAlive controladorKeepAlive;
     private UncaughtExceptionHandler GERENCIADOR_DE_EXCEPTION;
+    
+    private final int TEMPO_LIMITE_KEEP_ALIVE = (1)/*S*/ * (1000)/*MS*/;
+    private final int QUANTIDADE_MENSAGENS_KEEP_ALIVE = 3;
     
     public ComunicadorTCP(Modo modo,
             FilaMonitorada<byte[]> filaDeEnvioDeMensagens,
@@ -180,28 +170,35 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
         Socket socketNovo = this.abrirSocket(enderecoServidor, portaServidor);
         this.carregarSocket(socketNovo);
         this.prepararThreadsDeComunicacao();
-        this.threadEnviador.start();
-        this.threadReceptor.start();
+        this.iniciarThreadDeComunicacao();
+        this.controladorKeepAlive.iniciar();
     }
     
     public void iniciar(Socket socketNovo) throws IOException {
         this.carregarSocket(socketNovo);
         this.prepararThreadsDeComunicacao();
-        this.threadEnviador.start();
-        this.threadReceptor.start();
+        this.iniciarThreadDeComunicacao();
+        this.controladorKeepAlive.iniciar();
     }
     
     public void encerrarConexao() throws IOException {
+        this.controladorKeepAlive.encerrar();
         this.enviador.enviarPedidoFechamentoDaConexao();
         this.enviador.pararExecucao();
     }
     
     @Override
-    public void close() throws IOException {
-        this.enviador.close();
-        this.receptor.close();
-        this.socket.close();
-
+    public void close() {
+        try {
+            this.enviador.close();
+            this.receptor.close();
+            this.socket.close();
+        } catch(SocketException sk) {
+            System.out.println("[LOG][ERRO]: " + sk.getMessage());
+        } catch(IOException ioe) {
+            System.out.println("[LOG][ERRO]: " + ioe.getMessage());
+        }
+            
         this.threadEnviador.interrupt();
         this.threadReceptor.interrupt();
     }
@@ -255,22 +252,28 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
             throw new IOException("Não é possível estabelecer a comunicação: " + ioe.getMessage());
         }
         
+        this.controladorKeepAlive = new ControladorKeepAlive(this.GERENCIADOR_DE_EXCEPTION, this.TEMPO_LIMITE_KEEP_ALIVE, this.QUANTIDADE_MENSAGENS_KEEP_ALIVE);
+        
         this.enviador = new Enviador(saida, super.FILA_ENVIO_MENSAGENS);
-        this.receptor = new Receptor(entrada, super.FILA_RECEBIMENTO_MENSAGENS, this.enviador);
-
-        this.criarThreadEnviador();
-        this.criarThreadReceptor();
+        this.receptor = new Receptor(entrada, super.FILA_RECEBIMENTO_MENSAGENS, this.enviador, this.controladorKeepAlive);
+        
+        this.threadEnviador = this.criarThread(this.enviador, "Receptor_TCP", GERENCIADOR_DE_EXCEPTION);
+        this.threadReceptor = this.criarThread(this.receptor, "Enviador_TCP", GERENCIADOR_DE_EXCEPTION);
     }
     
-    private void criarThreadReceptor() {
-        this.threadReceptor = new Thread(this.receptor);
-        this.threadReceptor.setUncaughtExceptionHandler(GERENCIADOR_DE_EXCEPTION);
-        this.threadReceptor.setName("Receptor_TCP");
+    private Thread criarThread(
+            Runnable runnable,
+            String nome,
+            UncaughtExceptionHandler uncaughtExceptionHandler) {
+        
+        Thread thread = new Thread(runnable, nome);
+        thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+        
+        return thread;
     }
     
-    private void criarThreadEnviador() {
-        this.threadEnviador = new Thread(this.enviador);
-        this.threadEnviador.setUncaughtExceptionHandler(GERENCIADOR_DE_EXCEPTION);
-        this.threadEnviador.setName("Enviador_TCP");
+    private void iniciarThreadDeComunicacao() {
+        this.threadEnviador.start();
+        this.threadReceptor.start();
     }
 }

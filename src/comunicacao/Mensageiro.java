@@ -3,6 +3,7 @@ package comunicacao;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 
 public class Mensageiro implements Closeable {
     
@@ -95,35 +96,19 @@ public class Mensageiro implements Closeable {
                 portaEscutarUDP);
     }
     
+    public void iniciarTCP() throws IOException {
+        this.COMUNICADOR_TCP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
+        this.iniciarServicoEntrega();
+    }
     
-    public void iniciar() throws IOException {
-        try {
-            this.COMUNICADOR_TCP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
-        } catch(IOException ioe) {
-            ioe.printStackTrace(); // REGISTRAR NO LOG
-            throw new IOException("Não é possível se comunicar com o servidor.");
-        } catch(IllegalThreadStateException itse) {
-            itse.printStackTrace(); // REGISTRAR NO LOG
-            return;
-        }
-        
-        try {
-            this.COMUNICADOR_UDP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_UDP_SERVIDOR);
-            if(false) throw new IOException();
-        } catch(IOException ioe) {
-            this.COMUNICADOR_TCP.encerrarConexao();
-            this.COMUNICADOR_TCP.close();
-            ioe.printStackTrace(); // REGISTRAR NO LOG
-            throw new IOException("Não é possível se comunicar com o servidor.");
-        } catch(IllegalThreadStateException itse) {
-            this.COMUNICADOR_TCP.encerrarConexao();
-            this.COMUNICADOR_TCP.close();
-            itse.printStackTrace(); // REGISTRAR NO LOG
-            return;
-        }
-        
-        this.prepararThreadDeEntrega();
-        this.threadDeEntrega.start();
+    public void iniciarTCP(Socket socket) throws IOException {
+        this.COMUNICADOR_TCP.iniciar(socket);
+        this.iniciarServicoEntrega();
+    }
+    
+    public void iniciarUDP() throws IOException {
+        this.COMUNICADOR_UDP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_UDP_SERVIDOR);
+        this.iniciarServicoEntrega();
     }
     
     @Override
@@ -138,12 +123,8 @@ public class Mensageiro implements Closeable {
             this.COMUNICADOR_TCP.close();
             this.COMUNICADOR_UDP.close();
         } catch(IOException ioe) {
-            try {
-                this.COMUNICADOR_TCP.close();
-            } catch(IOException ioee) {
-                ioee.printStackTrace();
-            }
-            ioe.printStackTrace();
+            this.COMUNICADOR_TCP.close();
+            //ioe.printStackTrace();
         }
         
         this.entregador.parar();
@@ -167,17 +148,20 @@ public class Mensageiro implements Closeable {
         this.threadDeEntrega.setName("Entrega_Mensagem");
     }
     
+    private void iniciarServicoEntrega() {
+        if(this.entregador == null || this.threadDeEntrega == null) {
+            this.prepararThreadDeEntrega();
+            this.threadDeEntrega.start();
+        }
+    }
     
+    
+    private Mensageiro mensageiroAuxiliar = this;
     private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
+        Mensageiro mensageiro = mensageiroAuxiliar;
         public void uncaughtException(Thread th, Throwable ex) {
-            System.out.println("Uncaught exception: " + ex);
-            ex.printStackTrace();
-            try {
-                COMUNICADOR_TCP.close();
-                if(false)COMUNICADOR_TCP.close();
-            } catch(IOException ioe) {
-                //throw new ComunicadorException("Erro no comunicador", ex);
-            }
+            System.out.println("[LOG][ERRO] - Erro na conexão: " + ex.getMessage() + " [ENCERRANDO CONEXAO]");
+            mensageiro.close();
         }
     };
     
