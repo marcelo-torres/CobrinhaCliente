@@ -58,6 +58,8 @@ public class Mensageiro implements Closeable {
     private final int TAMANHO_MENSAGEM_UDP = 1024;
     
     private final InetAddress ENDERECO_SERVIDOR;
+    private final int PORTA_TCP_SERVIDOR;
+    private final int PORTA_UDP_SERVIDOR;
     
     private Entregador entregador;
     private Thread threadDeEntrega;
@@ -65,11 +67,15 @@ public class Mensageiro implements Closeable {
     public Mensageiro(
             Interpretador interpretador,
             int portaEscutarUDP,
-            InetAddress enderecoDoServidor) {
+            InetAddress enderecoDoServidor,
+            int portaTCPDoServidor,
+            int portaUDPDoServidor) {
     
         this.INTERPRETADOR = interpretador;
         
         this.ENDERECO_SERVIDOR = enderecoDoServidor;
+        this.PORTA_TCP_SERVIDOR = portaTCPDoServidor;
+        this.PORTA_UDP_SERVIDOR = portaUDPDoServidor;
         
         this.FILA_RECEBIMENTO_MENSAGENS = new FilaMonitorada<>(this.TAMANHO_FILA_RECEBIMENTO);
         this.FILA_ENVIO_MENSAGENS_TCP = new FilaMonitorada<>(this.TAMANHO_FILA_ENVIO_TCP);
