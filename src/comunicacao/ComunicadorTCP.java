@@ -1,5 +1,7 @@
 package comunicacao;
 
+import Logger.Logger;
+import static Logger.Logger.Tipo.ERRO;
 import static comunicacao.Comunicador.TipoMensagem.FECHAR_CONEXAO;
 import static comunicacao.Comunicador.TipoMensagem.PEDIR_FECHAMENTO_CONEXAO;
 import java.io.Closeable;
@@ -68,7 +70,6 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
                 } catch(EOFException eofe) { 
                     throw new FalhaDeComunicacaoEmTempoRealException("Conexão fechada: " + eofe.getMessage());
                 } catch(IOException ioe) {
-                    ioe.printStackTrace();
                     throw new FalhaDeComunicacaoEmTempoRealException("Não foi possível receber a mensagem: " + ioe.getMessage());
                 } catch(ClassNotFoundException cnfe) {
                     throw new RuntimeException("Classe não encontrada: " + cnfe.getMessage());
@@ -148,7 +149,8 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
     private ControladorKeepAlive controladorKeepAlive;
     private UncaughtExceptionHandler GERENCIADOR_DE_EXCEPTION;
     
-    private final int TEMPO_LIMITE_KEEP_ALIVE = (1)/*S*/ * (1000)/*MS*/;
+    private final int TEMPO_MS_LIMITE_ESPERA_FECHAR_CONEXAO = (3)/*S*/ * (1000)/*MS*/;
+    private final int TEMPO_MS_LIMITE_KEEP_ALIVE = (1)/*S*/ * (1000)/*MS*/;
     private final int QUANTIDADE_MENSAGENS_KEEP_ALIVE = 3;
     
     public ComunicadorTCP(Modo modo,
@@ -181,22 +183,30 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
         this.controladorKeepAlive.iniciar();
     }
     
-    public void encerrarConexao() throws IOException {
+    public void encerrarConexao() {
         this.controladorKeepAlive.encerrar();
-        this.enviador.enviarPedidoFechamentoDaConexao();
+        try {
+            this.enviador.enviarPedidoFechamentoDaConexao();
+            Thread.sleep(this.TEMPO_MS_LIMITE_ESPERA_FECHAR_CONEXAO);
+        } catch(IOException ioe) {
+            Logger.registrar(ERRO, ioe.getMessage(), ioe);
+        } catch(InterruptedException ie) {
+            Logger.registrar(ERRO, "Erro ao aguardar o tempo de encerrar a conexao: " + ie.getMessage(), ie);
+        }
+        
         this.enviador.pararExecucao();
     }
     
     @Override
-    public void close() {
+    public void close() throws IOException {
         try {
             this.enviador.close();
             this.receptor.close();
             this.socket.close();
         } catch(SocketException sk) {
-            System.out.println("[LOG][ERRO]: " + sk.getMessage());
+            Logger.registrar(ERRO, sk.getMessage(), sk);
         } catch(IOException ioe) {
-            System.out.println("[LOG][ERRO]: " + ioe.getMessage());
+            Logger.registrar(ERRO, ioe.getMessage(), ioe);
         }
             
         this.threadEnviador.interrupt();
@@ -252,7 +262,7 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
             throw new IOException("Não é possível estabelecer a comunicação: " + ioe.getMessage());
         }
         
-        this.controladorKeepAlive = new ControladorKeepAlive(this.GERENCIADOR_DE_EXCEPTION, this.TEMPO_LIMITE_KEEP_ALIVE, this.QUANTIDADE_MENSAGENS_KEEP_ALIVE);
+        this.controladorKeepAlive = new ControladorKeepAlive(this.GERENCIADOR_DE_EXCEPTION, this.TEMPO_MS_LIMITE_KEEP_ALIVE, this.QUANTIDADE_MENSAGENS_KEEP_ALIVE);
         
         this.enviador = new Enviador(saida, super.FILA_ENVIO_MENSAGENS);
         this.receptor = new Receptor(entrada, super.FILA_RECEBIMENTO_MENSAGENS, this.enviador, this.controladorKeepAlive);

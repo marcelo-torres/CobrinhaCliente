@@ -1,4 +1,4 @@
-package comunicacao;
+    package comunicacao;
 
 import java.io.Closeable;
 import java.io.EOFException;
@@ -185,13 +185,8 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     @Override
     public void close() throws IOException {
         this.socket.close();
-        
-        if(this.threadReceptor.isAlive()) {
-            this.threadReceptor.interrupt();
-        }
-        if(this.threadEnviador.isAlive()) {
-            this.threadEnviador.interrupt();
-        }
+        this.threadReceptor.interrupt();
+        this.threadEnviador.interrupt();
     }
     
     private void prepararThreadsDeComunicacao() throws IOException {
