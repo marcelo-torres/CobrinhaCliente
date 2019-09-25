@@ -2,6 +2,7 @@ package comunicacao;
 
 import Logger.Logger;
 import static Logger.Logger.Tipo.ERRO;
+import static Logger.Logger.Tipo.INFO;
 import static comunicacao.Comunicador.TipoMensagem.FECHAR_CONEXAO;
 import static comunicacao.Comunicador.TipoMensagem.PEDIR_FECHAMENTO_CONEXAO;
 import java.io.Closeable;
@@ -149,7 +150,7 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
     private ControladorKeepAlive controladorKeepAlive;
     private UncaughtExceptionHandler GERENCIADOR_DE_EXCEPTION;
     
-    private final int TEMPO_MS_LIMITE_ESPERA_FECHAR_CONEXAO = (3)/*S*/ * (1000)/*MS*/;
+    private final int TEMPO_MS_LIMITE_ESPERA_FECHAR_CONEXAO = (4)/*S*/ * (1000)/*MS*/;
     private final int TEMPO_MS_LIMITE_KEEP_ALIVE = (1)/*S*/ * (1000)/*MS*/;
     private final int QUANTIDADE_MENSAGENS_KEEP_ALIVE = 3;
     
@@ -169,6 +170,7 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
     
     @Override
     public void iniciar(InetAddress enderecoServidor, int portaServidor) throws IOException {
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_TCP"}, "Iniciando comunicador.");
         Socket socketNovo = this.abrirSocket(enderecoServidor, portaServidor);
         this.carregarSocket(socketNovo);
         this.prepararThreadsDeComunicacao();
@@ -177,6 +179,7 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
     }
     
     public void iniciar(Socket socketNovo) throws IOException {
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_TCP"}, "Iniciando comunicador.");
         this.carregarSocket(socketNovo);
         this.prepararThreadsDeComunicacao();
         this.iniciarThreadDeComunicacao();
@@ -187,11 +190,12 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
         this.controladorKeepAlive.encerrar();
         try {
             this.enviador.enviarPedidoFechamentoDaConexao();
-            Thread.sleep(this.TEMPO_MS_LIMITE_ESPERA_FECHAR_CONEXAO);
-        } catch(IOException ioe) {
-            Logger.registrar(ERRO, ioe.getMessage(), ioe);
+            new Thread().sleep(this.TEMPO_MS_LIMITE_ESPERA_FECHAR_CONEXAO);
         } catch(InterruptedException ie) {
             Logger.registrar(ERRO, "Erro ao aguardar o tempo de encerrar a conexao: " + ie.getMessage(), ie);
+        } catch(IOException ioe) {
+            Logger.registrar(ERRO, ioe.getMessage(), ioe);
+            ioe.printStackTrace();
         }
         
         this.enviador.pararExecucao();
@@ -283,7 +287,9 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
     }
     
     private void iniciarThreadDeComunicacao() {
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_TCP"}, "Iniciando thread de envio.");
         this.threadEnviador.start();
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_TCP"}, "Iniciando thread de recepcao.");
         this.threadReceptor.start();
     }
 }
