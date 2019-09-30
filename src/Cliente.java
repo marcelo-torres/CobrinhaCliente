@@ -1,7 +1,5 @@
-import comunicacao.FalhaDeComunicacaoEmTempoRealException;
-import comunicacao.Interpretador;
-import comunicacao.Mensageiro;
-import java.io.IOException;
+import stub.comunicacao.FalhaDeComunicacaoEmTempoRealException;
+import stub.InterpretadorCliente;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
@@ -13,8 +11,7 @@ public class Cliente {
     private final int PORTA_TCP_SERVIDOR;
     private final int PORTA_UDP_SERVIDOR;
     
-    private final Interpretador INTERPRETADOR;
-    private final Mensageiro MENSAGEIRO;
+    private final InterpretadorCliente INTERPRETADOR;
     
     
     public Cliente(int portaEscutarUDP, InetAddress enderecoServidor, int portaTCPServidor, int portaUDPServidor) {
@@ -23,8 +20,7 @@ public class Cliente {
         this.PORTA_TCP_SERVIDOR = portaTCPServidor;
         this.PORTA_UDP_SERVIDOR = portaUDPServidor;
         
-        this.INTERPRETADOR = new Interpretador();
-        this.MENSAGEIRO = new Mensageiro(this.INTERPRETADOR, this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.PORTA_UDP_SERVIDOR);
+        this.INTERPRETADOR = new InterpretadorCliente(this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.PORTA_UDP_SERVIDOR);
     }
     
     private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
@@ -42,8 +38,8 @@ public class Cliente {
     private void iniciar() {
         try {
             //this.iniciarComunicacao();
-            this.MENSAGEIRO.iniciarTCP();
-            this.MENSAGEIRO.iniciarUDP();
+            this.INTERPRETADOR.iniciar();
+            this.INTERPRETADOR.algumMetodoQueVaiPrecisarUsarConexaoUDP();
             
             LinkedList<String> mensagens = new LinkedList();
             mensagens.add("Mensagem TCP 1");
@@ -51,18 +47,18 @@ public class Cliente {
             mensagens.add("Mensagem TCP 3");
             mensagens.add("Mensagem TCP 4");
             for(String mensagem : mensagens) {
-                this.MENSAGEIRO.enviarMensagemTCP(mensagem.getBytes());
+                this.INTERPRETADOR.enviarMensagemTCPLembrarDeApagarEsteMetodo(mensagem.getBytes());
             }
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-            throw new RuntimeException("Não é possível estabelecer a conexão");
+        } catch(Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
             // TODO: salvar exception no log e tentar se reconectar
         }
     }
     
     public void encerrar() {
         System.out.println("encerrando");
-        this.MENSAGEIRO.close();
+        this.INTERPRETADOR.close();
     }
     
     public static void main(String[] args) {
