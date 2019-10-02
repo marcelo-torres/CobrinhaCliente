@@ -35,8 +35,7 @@ public class InterpretadorCliente extends Destinatario {
                 try {
                     destinatario.close();
                 } catch(IOException ioe) {
-                    Logger.registrar(ERRO, new String[]{"INTERPRETADOR"}, "Erro na comunicacao: " + ioe.getMessage());
-                    Logger.registrar(INFO, new String[]{"INTERPRETADOR"}, "Encerrando devido a falha de comunicacao");
+                    Logger.registrar(ERRO, new String[]{"INTERPRETADOR", "DESTINATARIO"}, "Erro ao encerrar destinatario: " + ioe.getMessage());
                 }
             }
         }
