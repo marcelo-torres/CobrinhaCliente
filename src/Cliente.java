@@ -1,5 +1,5 @@
 import stub.comunicacao.FalhaDeComunicacaoEmTempoRealException;
-import stub.InterpretadorCliente;
+import stub.Jogador;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ public class Cliente {
     private final int PORTA_TCP_SERVIDOR;
     private final int PORTA_UDP_SERVIDOR;
     
-    private final InterpretadorCliente INTERPRETADOR;
+    private final Jogador JOGADOR;
     
     
     public Cliente(int portaEscutarUDP, InetAddress enderecoServidor, int portaTCPServidor, int portaUDPServidor) {
@@ -20,7 +20,7 @@ public class Cliente {
         this.PORTA_TCP_SERVIDOR = portaTCPServidor;
         this.PORTA_UDP_SERVIDOR = portaUDPServidor;
         
-        this.INTERPRETADOR = new InterpretadorCliente(this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.PORTA_UDP_SERVIDOR);
+        this.JOGADOR = new Jogador(this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.PORTA_UDP_SERVIDOR);
     }
     
     private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
@@ -38,8 +38,14 @@ public class Cliente {
     private void iniciar() {
         try {
             //this.iniciarComunicacao();
-            this.INTERPRETADOR.iniciar();
-            this.INTERPRETADOR.algumMetodoQueVaiPrecisarUsarConexaoUDP();
+            this.JOGADOR.iniciar();
+            //this.JOGADOR.algumMetodoQueVaiPrecisarUsarConexaoUDP();
+            this.JOGADOR.iniciarPartida();
+            this.JOGADOR.andarParaBaixo();
+            this.JOGADOR.andarParaBaixo();
+            this.JOGADOR.andarParaCima();
+            this.JOGADOR.andarParaEsquerda();
+            this.JOGADOR.andarParaDireita();
             
             LinkedList<String> mensagens = new LinkedList();
             mensagens.add("Mensagem TCP 1");
@@ -47,7 +53,7 @@ public class Cliente {
             mensagens.add("Mensagem TCP 3");
             mensagens.add("Mensagem TCP 4");
             for(String mensagem : mensagens) {
-                this.INTERPRETADOR.enviarMensagemTCPLembrarDeApagarEsteMetodo(mensagem.getBytes());
+                this.JOGADOR.enviarMensagemTCPLembrarDeApagarEsteMetodo(mensagem.getBytes());
             }
         } catch(Exception e) {
             e.printStackTrace();
@@ -58,7 +64,7 @@ public class Cliente {
     
     public void encerrar() {
         System.out.println("encerrando");
-        this.INTERPRETADOR.close();
+        this.JOGADOR.close();
     }
     
     public static void main(String[] args) {

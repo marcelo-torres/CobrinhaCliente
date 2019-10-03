@@ -6,13 +6,14 @@ import static Logger.Logger.Tipo.INFO;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.LinkedList;
+import jogo.ErroApresentavelException;
 import stub.comunicacao.Comunicador;
 import stub.comunicacao.Destinatario;
 
 /**
  * blablablala escrever
  */
-public class InterpretadorCliente extends Destinatario {
+public class Jogador extends Destinatario implements jogo.Jogador {
 
     /**
      * Gerenciador de exceptions nao capturadas por metodos, isto eh, que
@@ -44,7 +45,7 @@ public class InterpretadorCliente extends Destinatario {
     
     private final static GerenciadorDeException GERENCIADOR_DE_EXCEPTION = new GerenciadorDeException();
     
-    public InterpretadorCliente(
+    public Jogador(
             int portaEscutarUDP,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor,
@@ -60,12 +61,12 @@ public class InterpretadorCliente extends Destinatario {
         GERENCIADOR_DE_EXCEPTION.setGerenciadorDeException(this);
     }
     
-    public void iniciar() throws Exception {
+    public void iniciar() {
         try {
             super.MENSAGEIRO.iniciarTCP();
         } catch(IOException ioe) {
-            Logger.registrar(ERRO, new String[]{"INTERPRETADOR"}, "Erro ao tentar iniciar a comunicacao.");
-            throw new Exception("Nao foi possivel iniciar a comunicacao com o servidor");
+            Logger.registrar(ERRO, new String[]{"INTERPRETADOR"}, "Erro ao tentar iniciar a comunicaca: " + ioe.getMessage(), ioe);
+            throw new ErroApresentavelException("Nao foi possivel iniciar a comunicacao com o servidor");
         }
     }
    
@@ -82,6 +83,75 @@ public class InterpretadorCliente extends Destinatario {
         }
         System.out.println("[Interpretador] Mensagem recebida: " + new String(mensagem));
     }
+    
+    
+    /* ###################################################################### */
+    
+    @Override
+    public void iniciarPartida() {
+        String mensagem = "[TCP] Jogador chama iniciarPartida()";
+        super.MENSAGEIRO.inserirFilaEnvioTCP(mensagem.getBytes());
+        if(!this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
+            try {
+                super.MENSAGEIRO.iniciarUDP();
+            } catch(IOException ioe) {
+                Logger.registrar(ERRO, new String[]{"JOGADOR"}, "Nao foi possivel iniciar a partida devido a uma falha ao iniciar a comunicacao UDP: " + ioe.getMessage(), ioe);
+                throw new ErroApresentavelException("Não foi possível iniciar a partida. Erro ao estabelecer uma conexão com o servidor");
+            }
+        }
+    }
+
+    @Override
+    public void desistirDeProcurarPartida() {
+        String mensagem = "[TCP] Jogador chama desistirDeProcurarPartida()";
+        super.MENSAGEIRO.inserirFilaEnvioTCP(mensagem.getBytes());
+        /*if(!this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
+            try {
+                super.MENSAGEIRO.iniciarUDP();
+            } catch(IOException ioe) {
+                Logger.registrar(ERRO, new String[]{"JOGADOR"}, "Nao foi possivel iniciar a partida devido a uma falha ao iniciar a comunicacao UDP: " + ioe.getMessage(), ioe);
+                throw new ErroApresentavelException("Não foi possível iniciar a partida. Erro ao estabelecer uma conexão com o servidor");
+            }
+        }*/
+    }
+    
+    @Override
+    public void encerrarPartida() {
+        String mensagem = "[TCP] Jogador chama encerrarPartida()";
+        super.MENSAGEIRO.inserirFilaEnvioTCP(mensagem.getBytes());
+        if(this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
+            super.MENSAGEIRO.close();
+        }
+    }
+
+    @Override
+    public void andarParaCima() {
+        String mensagem = "[UDP] Jogador chama andarParaCima()";
+        super.MENSAGEIRO.inserirFilaEnvioUDP(mensagem.getBytes());
+    }
+
+    @Override
+    public void andarParaBaixo() {
+        String mensagem = "[UDP] Jogador chama andarParaBaixo()";
+        super.MENSAGEIRO.inserirFilaEnvioUDP(mensagem.getBytes());
+    }
+
+    @Override
+    public void andarParaEsquerda() {
+        String mensagem = "[UDP] Jogador chama andarParaEsquerda()";
+        super.MENSAGEIRO.inserirFilaEnvioUDP(mensagem.getBytes());
+    }
+
+    @Override
+    public void andarParaDireita() {
+        String mensagem = "[UDP] Jogador chama andarParaDireita()";
+        super.MENSAGEIRO.inserirFilaEnvioUDP(mensagem.getBytes());
+    }
+    
+    /* ###################################################################### */
+    
+    
+    
     
     
     public void enviarMensagemTCPLembrarDeApagarEsteMetodo(byte[] mensagem) {
@@ -104,7 +174,5 @@ public class InterpretadorCliente extends Destinatario {
     
     /* ########################### CHAMADAS DE RPC ########################## */
     
-    public void encerrarPartida() {
     
-    }
 }
