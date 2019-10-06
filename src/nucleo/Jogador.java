@@ -1,4 +1,4 @@
-package jogo;
+package nucleo;
 
 public interface Jogador {
     

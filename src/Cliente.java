@@ -1,5 +1,5 @@
 import stub.comunicacao.FalhaDeComunicacaoEmTempoRealException;
-import stub.Jogador;
+import stub.ControladorDeConexao;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ public class Cliente {
     private final int PORTA_TCP_SERVIDOR;
     private final int PORTA_UDP_SERVIDOR;
     
-    private final Jogador JOGADOR;
+    private final ControladorDeConexao JOGADOR;
     
     
     public Cliente(int portaEscutarUDP, InetAddress enderecoServidor, int portaTCPServidor, int portaUDPServidor) {
@@ -20,7 +20,7 @@ public class Cliente {
         this.PORTA_TCP_SERVIDOR = portaTCPServidor;
         this.PORTA_UDP_SERVIDOR = portaUDPServidor;
         
-        this.JOGADOR = new Jogador(this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.PORTA_UDP_SERVIDOR);
+        this.JOGADOR = new ControladorDeConexao(this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.PORTA_UDP_SERVIDOR);
     }
     
     private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
@@ -77,7 +77,7 @@ public class Cliente {
             throw new RuntimeException("Erro: " + uhe.getMessage());
         }     
         int portaTCPServidor = 2573;
-        int portaUDPServidor = -1;
+        int portaUDPServidor = 1234;
         
         Cliente cliente = new Cliente(portaEscutarUDP, enderecoServidor, portaTCPServidor, portaUDPServidor);
         

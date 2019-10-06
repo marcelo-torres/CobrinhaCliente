@@ -1,7 +1,5 @@
 package stub.comunicacao;
 
-import Logger.Logger;
-import static Logger.Logger.Tipo.ERRO;
 import stub.comunicacao.Comunicador.Modo;
 import java.io.Closeable;
 import java.io.IOException;
@@ -21,49 +19,6 @@ import java.net.Socket;
  */
 public class Mensageiro implements Closeable {
     
-    /**
-     * Possui como funcao retirar mensagens da fila de recebimento e entregar
-     * ao Destinatario.
-     */
-    public static class Entregador implements Runnable {
-        
-        protected final Destinatario INTERPRETADOR;
-        protected final Mensageiro MENSAGEIRO;
-        
-        protected boolean emEexecucao = false;
-        
-        public Entregador(Destinatario interpretador, Mensageiro mensageiro) {
-        
-            this.INTERPRETADOR = interpretador;
-            this.MENSAGEIRO = mensageiro;
-        }
-        
-        
-        @Override
-        public void run() {
-            this.emEexecucao = true;
-            while(this.emExecucao()) {
-                byte[] mensagem = this.MENSAGEIRO.removerFilaRecebimento();
-                if(mensagem != null) {
-                    this.INTERPRETADOR.receberMensagem(mensagem);
-                }
-            }
-        }
-        
-        
-        public synchronized boolean emExecucao() {
-            return emEexecucao;
-        }
-        
-        public synchronized void parar() {
-            this.MENSAGEIRO.fecharFilaRecebimento();
-            this.emEexecucao = false;
-        }
-    }
-    
-    
-    
-    private final Destinatario DESTINATARIO;
     private final ComunicadorTCP COMUNICADOR_TCP;
     private final ComunicadorUDP COMUNICADOR_UDP;
     
@@ -80,13 +35,9 @@ public class Mensageiro implements Closeable {
     private final int PORTA_TCP_SERVIDOR;
     private final int PORTA_UDP_SERVIDOR;
     
-    private Entregador entregador;
-    private Thread threadDeEntrega;
-    
     /**
      * Cria as filas de mensagem e os comunicadores.
      * 
-     * @param destinatario Destinatario da mensagem
      * @param modo Modo de execucao dos comunicadores
      * @param portaEscutarUDP Porta para escutar UDP na maquina em questao
      * @param enderecoDoServidor Endereco do servidor com ambos os sockets
@@ -95,15 +46,12 @@ public class Mensageiro implements Closeable {
      * @param gerenciadorDeException Handler de exception lancadas em threads
      */
     public Mensageiro(
-            Destinatario destinatario,
             Modo modo,
             int portaEscutarUDP,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor,
             int portaUDPDoServidor,
             Thread.UncaughtExceptionHandler gerenciadorDeException) {
-    
-        this.DESTINATARIO = destinatario;
         
         this.ENDERECO_SERVIDOR = enderecoDoServidor;
         this.PORTA_TCP_SERVIDOR = portaTCPDoServidor;
@@ -122,31 +70,27 @@ public class Mensageiro implements Closeable {
                 modo,
                 this,
                 gerenciadorDeException,
-                this.TAMANHO_MENSAGEM_UDP,
-                portaEscutarUDP);
+                this.TAMANHO_MENSAGEM_UDP);
     }
     
     /**
      * Inicia uma conexao TCP com host de endereco e porta definidos no 
-     * construtor, e inicia a thread de entrega de mensagens ao destinatario.
+     * construtor.
      * 
      * @throws IOException Erro ao iniciar a conexao.
      */
     public void iniciarTCP() throws IOException {
         this.COMUNICADOR_TCP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
-        this.iniciarServicoEntrega();
     }
     
     /**
-     * Mantem uma conexao estabelecida com o socket passado por parametro e
-     * inicia a thread de entrega de mensagens ao destinatario.
+     * Mantem uma conexao estabelecida com o socket passado por parametro.
      * 
      * @param socket Socket com a conexao
      * @throws IOException Erro ao iniciar a conexao.
      */
     public void iniciarTCP(Socket socket) throws IOException {
         this.COMUNICADOR_TCP.iniciar(socket);
-        this.iniciarServicoEntrega();
     }
     
     /**
@@ -164,9 +108,13 @@ public class Mensageiro implements Closeable {
      * 
      * @throws IOException Erro ao configurar o socket
      */
-    public void iniciarUDP() throws IOException {
-        this.COMUNICADOR_UDP.iniciar(this.ENDERECO_SERVIDOR, this.PORTA_UDP_SERVIDOR);
-        this.iniciarServicoEntrega();
+    public void iniciarUDP(int portaDeEscuta) throws IOException {
+        this.COMUNICADOR_UDP.iniciar(portaDeEscuta);
+        
+    }
+    
+    public void definirDestinatario(InetAddress enderecoDoServidor, int portaDeEscutaUDPDoServidor) {
+        this.COMUNICADOR_UDP.definirDestinatario(ENDERECO_SERVIDOR, PORTA_TCP_SERVIDOR);
     }
     
     /**
@@ -200,10 +148,6 @@ public class Mensageiro implements Closeable {
     public void close() {
         this.encerrarTCP();
         this.encerrarUDP();
-        this.entregador.parar();
-        if(this.threadDeEntrega.isAlive()) {
-            this.threadDeEntrega.interrupt();
-        }
     }
     
     
@@ -252,20 +196,5 @@ public class Mensageiro implements Closeable {
     
     public void fecharFilaEnvioUDP() {
         this.FILA_ENVIO_MENSAGENS_UDP.fechar();
-    }
-    
-    
-    
-    private void prepararThreadDeEntrega() {
-        this.entregador = new Entregador(this.DESTINATARIO, this);
-        this.threadDeEntrega = new Thread(this.entregador);
-        this.threadDeEntrega.setName("Entrega_Mensagem");
-    }
-    
-    private void iniciarServicoEntrega() {
-        if(this.entregador == null || this.threadDeEntrega == null) {
-            this.prepararThreadDeEntrega();
-            this.threadDeEntrega.start();
-        }
     }
 }
