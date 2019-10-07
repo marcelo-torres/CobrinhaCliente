@@ -1,60 +1,31 @@
+import java.io.Closeable;
 import stub.comunicacao.FalhaDeComunicacaoEmTempoRealException;
-import stub.ControladorDeConexao;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.LinkedList;
+import nucleo.ControladorCliente;
 
-public class Cliente {
+public class Cliente implements Closeable {
     
     private final int PORTA_ESCUTAR_UDP;
     private final InetAddress ENDERECO_SERVIDOR;
     private final int PORTA_TCP_SERVIDOR;
-    private final int PORTA_UDP_SERVIDOR;
+
+    private final ControladorCliente CONTROLADOR_CLIENTE;
     
-    private final ControladorDeConexao JOGADOR;
     
-    
-    public Cliente(int portaEscutarUDP, InetAddress enderecoServidor, int portaTCPServidor, int portaUDPServidor) {
+    public Cliente(int portaEscutarUDP, InetAddress enderecoServidor, int portaTCPServidor) {
         this.PORTA_ESCUTAR_UDP = portaEscutarUDP;
         this.ENDERECO_SERVIDOR = enderecoServidor;
         this.PORTA_TCP_SERVIDOR = portaTCPServidor;
-        this.PORTA_UDP_SERVIDOR = portaUDPServidor;
         
-        this.JOGADOR = new ControladorDeConexao(this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.PORTA_UDP_SERVIDOR);
+        this.CONTROLADOR_CLIENTE = new ControladorCliente(this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
     }
-    
-    private Thread.UncaughtExceptionHandler gerenciadorDeException = new Thread.UncaughtExceptionHandler() {
-        public void uncaughtException(Thread th, Throwable ex) {
-            System.out.println("Uncaught exception: " + ex);
-            ex.printStackTrace();
-            /*try {
-                if(false)//COMUNICADOR_TCP.close();
-            } catch(IOException ioe) {
-                //throw new ComunicadorException("Erro no comunicador", ex);
-            }*/
-        }
-    };
     
     private void iniciar() {
         try {
-            //this.iniciarComunicacao();
-            this.JOGADOR.iniciar();
-            //this.JOGADOR.algumMetodoQueVaiPrecisarUsarConexaoUDP();
-            this.JOGADOR.iniciarPartida();
-            this.JOGADOR.andarParaBaixo();
-            this.JOGADOR.andarParaBaixo();
-            this.JOGADOR.andarParaCima();
-            this.JOGADOR.andarParaEsquerda();
-            this.JOGADOR.andarParaDireita();
+            this.CONTROLADOR_CLIENTE.executarSequenciaDeTestes();
             
-            LinkedList<String> mensagens = new LinkedList();
-            mensagens.add("Mensagem TCP 1");
-            mensagens.add("Mensagem TCP 2");
-            mensagens.add("Mensagem TCP 3");
-            mensagens.add("Mensagem TCP 4");
-            for(String mensagem : mensagens) {
-                this.JOGADOR.enviarMensagemTCPLembrarDeApagarEsteMetodo(mensagem.getBytes());
-            }
+                
         } catch(Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -62,9 +33,10 @@ public class Cliente {
         }
     }
     
-    public void encerrar() {
+    @Override
+    public void close() {
         System.out.println("encerrando");
-        this.JOGADOR.close();
+        this.CONTROLADOR_CLIENTE.close();
     }
     
     public static void main(String[] args) {
@@ -77,9 +49,8 @@ public class Cliente {
             throw new RuntimeException("Erro: " + uhe.getMessage());
         }     
         int portaTCPServidor = 2573;
-        int portaUDPServidor = 1234;
         
-        Cliente cliente = new Cliente(portaEscutarUDP, enderecoServidor, portaTCPServidor, portaUDPServidor);
+        Cliente cliente = new Cliente(portaEscutarUDP, enderecoServidor, portaTCPServidor);
         
         try{
             cliente.iniciar();
@@ -93,7 +64,7 @@ public class Cliente {
             e.printStackTrace();
         }
         
-        cliente.encerrar();
+        cliente.close();
 
         /*
         try{

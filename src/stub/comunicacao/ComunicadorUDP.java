@@ -81,19 +81,13 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     private static class Enviador extends ThreadEscrava implements Runnable {
         
         private final DatagramSocket SOCKET;
-        private final InetAddress ENDERECO_SERVIDOR;
-        private final int PORTA_SERVIDOR;
         private final Mensageiro MENSAGEIRO;
         
         public Enviador(DatagramSocket socket,
-                InetAddress enderecoServidor,
-                int porta, 
                 Mensageiro mensageiro) 
                 throws IOException {
             
             this.SOCKET = socket;
-            this.ENDERECO_SERVIDOR = enderecoServidor;
-            this.PORTA_SERVIDOR = porta;
             this.MENSAGEIRO = mensageiro;
         }
         
@@ -102,14 +96,15 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
             super.executar();
             while(super.emExecucao()) {    
                 byte[] mensagem = this.MENSAGEIRO.removerFilaEnvioUDP();
+                System.out.println("Agora vamos enviar via UDP a mensagem: " + new String(mensagem));
                 if(mensagem != null) {
                     try {
                         DatagramPacket pacote = new DatagramPacket(
                                                         mensagem,
-                                                        mensagem.length,
+                                                        mensagem.length/*,
                                                         this.ENDERECO_SERVIDOR,
-                                                        this.PORTA_SERVIDOR);
-                                                    
+                                                        this.PORTA_SERVIDOR*/);
+                                                 
                         this.SOCKET.send(pacote);
                     } catch(IOException ioe) {
                         throw new FalhaDeComunicacaoEmTempoRealException("Nao foi possivel enviar a mensagem: " + ioe.getMessage());
@@ -122,9 +117,6 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     /* ###################################################################### */
     
     private DatagramSocket socket;
-    
-    private InetAddress enderecoServidor;
-    private int portaServidor;
     
     private Thread threadReceptor;
     private Thread threadEnviador;
@@ -192,15 +184,16 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
             Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de recepcao 1");
             this.threadReceptor.start();
         } else {
-            Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de envio 2");
-            this.threadEnviador.start();
+            //Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de envio 2");
+            //this.threadEnviador.start();
         }
         this.estaAberto = true;
     }
 
     public void definirDestinatario(InetAddress enderecoServidor, int portaServidor) {
-        this.enderecoServidor = enderecoServidor;
-        this.portaServidor = portaServidor;
+        this.socket.connect(enderecoServidor, portaServidor);
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de envio 2");
+        this.threadEnviador.start();
     }
     
     /**
@@ -220,7 +213,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
         if(this.socket == null) {
             return -1;
         }
-        return this.socket.getPort();
+        return this.socket.getLocalPort();
     }
     
     /**
@@ -245,11 +238,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     
     private void prepararThreadsDeComunicacao() throws IOException {
         try {
-            this.enviador = new Enviador(
-                    this.socket, 
-                    this.enderecoServidor, 
-                    this.portaServidor, 
-                    super.MENSAGEIRO);
+            this.enviador = new Enviador(this.socket, super.MENSAGEIRO);
             
             this.receptor = new Receptor(
                     this.socket, 
