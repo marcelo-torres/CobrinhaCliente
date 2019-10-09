@@ -47,7 +47,6 @@ public class ControladorDeConexao implements nucleo.Jogador, Closeable {
         
         this.MENSAGEIRO = new Mensageiro(
                 Comunicador.Modo.SERVIDOR,
-                portaEscutarUDP,
                 enderecoDoServidor,
                 portaTCPDoServidor,
                 this.GERENCIADOR_DE_EXCEPTION);

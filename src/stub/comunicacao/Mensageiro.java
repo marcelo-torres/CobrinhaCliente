@@ -38,15 +38,12 @@ public class Mensageiro implements Closeable {
      * Cria as filas de mensagem e os comunicadores.
      * 
      * @param modo Modo de execucao dos comunicadores
-     * @param portaEscutarUDP Porta para escutar UDP na maquina em questao
      * @param enderecoDoServidor Endereco do servidor com ambos os sockets
      * @param portaTCPDoServidor Porta de escuta TCP no servidor
-     * @param portaUDPDoServidor Porta de escuta UDP no servidor
      * @param gerenciadorDeException Handler de exception lancadas em threads
      */
     public Mensageiro(
             Modo modo,
-            int portaEscutarUDP,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor,
             Thread.UncaughtExceptionHandler gerenciadorDeException) {
@@ -118,7 +115,6 @@ public class Mensageiro implements Closeable {
      * Encerra a conexao TCP e fecha o comunicador TCP.
      */
     public void encerrarUDP() {
-        this.COMUNICADOR_UDP.encerrarComunicacao();
         this.COMUNICADOR_UDP.close();
     }
     
