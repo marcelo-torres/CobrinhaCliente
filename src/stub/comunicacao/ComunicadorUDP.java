@@ -96,15 +96,11 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
             super.executar();
             while(super.emExecucao()) {    
                 byte[] mensagem = this.MENSAGEIRO.removerFilaEnvioUDP();
-                System.out.println("Agora vamos enviar via UDP a mensagem: " + new String(mensagem));
                 if(mensagem != null) {
                     try {
                         DatagramPacket pacote = new DatagramPacket(
                                                         mensagem,
-                                                        mensagem.length/*,
-                                                        this.ENDERECO_SERVIDOR,
-                                                        this.PORTA_SERVIDOR*/);
-                                                 
+                                                        mensagem.length);     
                         this.SOCKET.send(pacote);
                     } catch(IOException ioe) {
                         throw new FalhaDeComunicacaoEmTempoRealException("Nao foi possivel enviar a mensagem: " + ioe.getMessage());
@@ -122,7 +118,7 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     private Thread threadEnviador;
     private Receptor receptor;
     private Enviador enviador; 
-    private UncaughtExceptionHandler GERENCIADOR_DE_EXCEPTION;
+    private final UncaughtExceptionHandler GERENCIADOR_DE_EXCEPTION;
     
     private final int TAMANHO_DA_MENSAGEM;
     private final int TEMPO_LIMITE_ESCUTA = 100; //ms
@@ -134,7 +130,6 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
      * @param mensageiro Mensageiro de onde as mensagens serao tiradas e entregues
      * @param gerenciadorDeException Handler de exceptions lancadas a partir das threads
      * @param tamanhoDaMensagem Tamanho em bytes da mensagem a ser enviada
-     * @param PORTA_ESCUTA Porta de escuta do socket
      */
     public ComunicadorUDP(Modo modo,
             Mensageiro mensageiro,
@@ -161,10 +156,9 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     
     /**
      * Configura o comunicador criando e configurando o socket, e criando as
-     * threads de comunicacao e executando-as.
+     * threads de comunicacao e iniciando a execucacao da thread de recepcao.
      * 
-     * @param enderecoServidor O endereco do servidor de destino das mensagens
-     * @param portaServidor A porta de recebimento das mensagens. Caso valor < 1
+     * @param portaDeEscuta A porta de recebimento das mensagens. Caso valor < 1
      *                      a porta eh escolhida aleatoriamente pelo proprio
      *                      construtor do socket
      * @throws IOException Erro ao configurar o socket
@@ -172,27 +166,26 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     //@Override
     public void iniciar(int portaDeEscuta) throws IOException {
         Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando comunicador.");
+        
         if(portaDeEscuta < 1) {
             this.socket = new DatagramSocket();
         } else {
             this.socket = new DatagramSocket(portaDeEscuta);
         }
         this.socket.setSoTimeout(this.TEMPO_LIMITE_ESCUTA);
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando socket na porta " + this.socket.getLocalPort());
                 
         this.prepararThreadsDeComunicacao();
-        if(super.MODO == Modo.CLIENTE) {
-            Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de recepcao 1");
-            this.threadReceptor.start();
-        } else {
-            //Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de envio 2");
-            //this.threadEnviador.start();
-        }
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de recepcao");
+        this.threadReceptor.start();
+
         this.estaAberto = true;
     }
 
     public void definirDestinatario(InetAddress enderecoServidor, int portaServidor) {
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Definindo destino padrao: " + enderecoServidor + ":" + portaServidor);
         this.socket.connect(enderecoServidor, portaServidor);
-        Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de envio 2");
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Iniciando thread de envio");
         this.threadEnviador.start();
     }
     
@@ -217,20 +210,14 @@ public class ComunicadorUDP extends Comunicador implements Closeable {
     }
     
     /**
-     * Solicita que as threads de comunicacao parem. A solicitacao pode nao ser
-     * atendida na hora.
-     */
-    public void encerrarComunicacao() {
-        this.receptor.pararExecucao();
-        this.enviador.pararExecucao();
-    }
-    
-    /**
      * Fecha o socket a interrompe as threads
      */
     @Override
     public void close() {
+        Logger.registrar(INFO, new String[]{"COMUNICADOR_UDP"}, "Fechando comunicador");
         this.estaAberto = false;
+        this.receptor.pararExecucao();
+        this.enviador.pararExecucao();
         this.socket.close();
         this.threadReceptor.interrupt();
         this.threadEnviador.interrupt();

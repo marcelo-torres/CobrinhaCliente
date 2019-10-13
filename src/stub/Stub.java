@@ -25,7 +25,6 @@ public abstract class Stub implements Closeable {
         
         this.MENSAGEIRO = new Mensageiro(
                 modo,
-                portaEscutarUDP,
                 enderecoDoServidor,
                 portaTCPDoServidor,
                 this.GERENCIADOR_DE_EXCEPTION);

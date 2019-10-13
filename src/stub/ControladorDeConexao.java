@@ -74,7 +74,7 @@ public class ControladorDeConexao extends Stub implements jogo.Jogador {
         
         switch(codigo) {
             case "MSG":
-                System.out.println("[Interpretador] Mensagem recebida: " + conteudo);
+                System.out.println("[STUB] Mensagem recebida: " + conteudo);
                 break;
             case "COM":
                 if(conteudo.startsWith("UDP_ABRIR")) {
@@ -96,13 +96,12 @@ public class ControladorDeConexao extends Stub implements jogo.Jogador {
                         throw new RuntimeException("Mensagem indecifravel");
                     }
                 } else {
-                    Logger.registrar(ERRO, new String[]{"INTERPRETADOR"}, "Tem um comando estranho aqui ooo: " + conteudo);
-                    // nao faz nada
+                    Logger.registrar(ERRO, new String[]{"STUB"}, "Comando desconhecido recebido: " + conteudo);
                 }
                 
                 break;
             default:
-                System.out.println("[Interpretador] Mensagem ESTRANHA recebida: " + mensagemInterpretada);
+                System.out.println("[STUB] Mensagem ESTRANHA recebida: " + mensagemInterpretada);
         }
     }
     
