@@ -1,11 +1,12 @@
 package nucleo;
 
+import aplicacao.jogo.ControladorDePartida;
 import aplicacao.jogo.Jogador;
 import java.io.Closeable;
 import java.net.InetAddress;
 import stub.ControladorDeConexao;
 
-public class ControladorCliente implements Closeable {
+public class ControladorCliente implements ControladorDePartida, Closeable {
 
     private final Jogador JOGADOR;
     
@@ -24,6 +25,46 @@ public class ControladorCliente implements Closeable {
         this.JOGADOR.iniciarPartida();
         this.JOGADOR.andarParaCima();
         this.JOGADOR.andarParaBaixo();
+        
+        try {new Thread().sleep(3000);} catch(Exception e) {}
+        
+        this.JOGADOR.encerrarPartida();
+        
+        try {new Thread().sleep(3000);} catch(Exception e) {}
+        
+        this.JOGADOR.iniciarPartida();
+        this.JOGADOR.andarParaEsquerda();
+        this.JOGADOR.andarParaDireita();
+    }
+
+    @Override
+    public void vocerPerdeu() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void voceGanhou() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void adversarioSaiu() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void irParaOHall() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void logar(String login) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void falhaAoLogar(String mensagem) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 

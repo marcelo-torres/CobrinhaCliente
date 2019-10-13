@@ -56,7 +56,7 @@ public class Cliente implements Closeable {
         }
         
         try{
-            new Thread().sleep(10 * 1000);
+            new Thread().sleep(20 * 1000);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -69,11 +69,11 @@ public class Cliente implements Closeable {
             new Thread().sleep(3 * 1000);
         } catch(Exception e) {
             e.printStackTrace();
-        }
+        }*/
          
         //Ver threads q estao ativas
         Thread.getAllStackTraces().keySet().forEach((t) -> System.out.println(t.getName() + "  " + " Is Alive: " + t.isAlive()));
-        */
+        
     }
     
 }

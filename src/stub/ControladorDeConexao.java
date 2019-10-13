@@ -2,35 +2,42 @@ package stub;
 
 import Logger.Logger;
 import static Logger.Logger.Tipo.ERRO;
+import aplicacao.jogo.ControladorDePartida;
 import java.net.InetAddress;
 import java.util.regex.Pattern;
 import java.util.LinkedList;
 import nucleo.ControladorCliente;
 import stub.comando.Comando;
 import stub.comando.ComandoExibirMensagem;
+import stub.comando.controlador_de_partida.AdversarioSaiu;
+import stub.comando.controlador_de_partida.VoceGanhou;
+import stub.comando.controlador_de_partida.VocePerdeu;
 import stub.comando.gerenciador_de_udp.AtenderPedidoInicioDeAberturaUDP;
 import stub.comando.gerenciador_de_udp.ContinuarAberturaUDP;
+import stub.comando.gerenciador_de_udp.FecharConexaoUDP;
+import stub.comando.gerenciador_de_udp.IniciarFechamentoConexaoUDP;
 import stub.comando.gerenciador_de_udp.IniciarPedidoDeAberturaUDP;
 import stub.comunicacao.Comunicador;
 
 /**
- * blablablala escrever
+ * Eh o Stub do cliente. Responsavel por esconder da aplicacao que a implementacao
+ * real do objeto Jogador esta em outra maquina.
  */
 public class ControladorDeConexao extends Stub implements aplicacao.jogo.Jogador {
     
-    private final ControladorCliente CONTROLADOR_CLIENTE;
+    private final ControladorDePartida CONTROLADOR_DE_PARTIDA;
     private final InetAddress ENDERECO_DO_SERVIDOR;
     private final GerenciadorDeConexaoUDPRemota GERENCIADOR_CONEXAO_UDP;   
     
     public ControladorDeConexao(
-            ControladorCliente controladorCliente,
+            ControladorDePartida controladorDePartida,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor) {
         super(Comunicador.Modo.CLIENTE,
                 enderecoDoServidor,
                 portaTCPDoServidor);
         
-        this.CONTROLADOR_CLIENTE = controladorCliente;        
+        this.CONTROLADOR_DE_PARTIDA = controladorDePartida;        
         this.ENDERECO_DO_SERVIDOR = enderecoDoServidor;
         this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR);
         
@@ -53,7 +60,9 @@ public class ControladorDeConexao extends Stub implements aplicacao.jogo.Jogador
     @Override
     public void iniciarPartida() {  
         byte[] mensagem = this.INTERPRETADOR.codificarIniciarPartida();
-        this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
+        System.out.println("VOU ATIVAR A PARTIDA");
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
+        
         
         try {
             this.GERENCIADOR_CONEXAO_UDP.iniciarPedidoDeAberturaUDP();
@@ -66,24 +75,15 @@ public class ControladorDeConexao extends Stub implements aplicacao.jogo.Jogador
     @Override
     public void desistirDeProcurarPartida() {
         byte[] mensagem = this.INTERPRETADOR.codificarDesistirDeProcurarPartida();
-        this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
-        /*if(!this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
-            try {
-                super.MENSAGEIRO.iniciarUDP();
-            } catch(IOException ioe) {
-                Logger.registrar(ERRO, new String[]{"JOGADOR"}, "Nao foi possivel iniciar a partida devido a uma falha ao iniciar a comunicacao UDP: " + ioe.getMessage(), ioe);
-                throw new ErroApresentavelException("Não foi possível iniciar a partida. Erro ao estabelecer uma conexão com o servidor");
-            }
-        }*/
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
+        this.GERENCIADOR_CONEXAO_UDP.iniciarFechamentoConexaoUDP();
     }
     
     @Override
     public void encerrarPartida() {
         byte[] mensagem = this.INTERPRETADOR.codificarEncerrarPartida();
-        this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
-        //if(this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
-            this.MENSAGEIRO.close();
-        //}
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
+        this.GERENCIADOR_CONEXAO_UDP.iniciarFechamentoConexaoUDP();
     }
 
     @Override
@@ -110,16 +110,20 @@ public class ControladorDeConexao extends Stub implements aplicacao.jogo.Jogador
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
     }
     
-    private LinkedList<Comando> criarComandosNecessarios() {
+    @Override
+    protected LinkedList<Comando> criarComandosNecessarios() {
         
         LinkedList<Comando> listaDeComandos = new LinkedList<>();
         
-        // resolver essa bagaca aqui
-        //listaDeComandos.add(new AdversarioSaiu("adversarioSaiu",));
+        listaDeComandos.add(new AdversarioSaiu("adversarioSaiu", CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new VoceGanhou("voceGanhou", CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new VocePerdeu("vocePerdeu", CONTROLADOR_DE_PARTIDA));
         
         listaDeComandos.add(new ComandoExibirMensagem("exibirMensagem"));
         listaDeComandos.add(new AtenderPedidoInicioDeAberturaUDP("atenderPedidoInicioDeAberturaUDP", this.GERENCIADOR_CONEXAO_UDP));
         listaDeComandos.add(new ContinuarAberturaUDP("continuarAberturaUDP", this.GERENCIADOR_CONEXAO_UDP));
+        listaDeComandos.add(new FecharConexaoUDP("fecharConexaoUDP", this.GERENCIADOR_CONEXAO_UDP));
+        listaDeComandos.add(new IniciarFechamentoConexaoUDP("iniciarFechamentoConexaoUDP", this.GERENCIADOR_CONEXAO_UDP));
         listaDeComandos.add(new IniciarPedidoDeAberturaUDP("iniciarPedidoDeAberturaUDP", this.GERENCIADOR_CONEXAO_UDP));
         
         return listaDeComandos;
