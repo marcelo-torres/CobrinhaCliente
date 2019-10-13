@@ -3,7 +3,6 @@ package stub;
 import Logger.Logger;
 import static Logger.Logger.Tipo.ERRO;
 import static Logger.Logger.Tipo.INFO;
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.Semaphore;
@@ -17,19 +16,16 @@ import stub.comunicacao.Mensageiro;
 /**
  * blablablala escrever
  */
-public class ControladorDeConexao implements nucleo.Jogador, Closeable {
+public class ControladorDeConexao extends Stub implements jogo.Jogador {
     
     private final Semaphore SEMAFORO_ATICAO_UDP = new Semaphore(0);
     
     private final ControladorCliente CONTROLADOR_CLIENTE;
-    private final GerenciadorDeException GERENCIADOR_DE_EXCEPTION;
-    private final Mensageiro MENSAGEIRO;
-    private final InterpretadorCliente INTERPRETADOR = new InterpretadorCliente();
-    
+
+    private final InterpretadorCliente INTERPRETADOR = new InterpretadorCliente();    
     private final InetAddress ENDERECO_DO_SERVIDOR;
     
-    private Receptor receptor;
-    private Thread threadDeRecepcao;
+
     
     private Pattern PADRAO_NUMERO = Pattern.compile("\\d+");
     private boolean hostProntoParaReceberUDP = false;
@@ -41,17 +37,13 @@ public class ControladorDeConexao implements nucleo.Jogador, Closeable {
             int portaEscutarUDP,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor) {
-        
-        this.CONTROLADOR_CLIENTE = controladorCliente;
-        this.GERENCIADOR_DE_EXCEPTION = new GerenciadorDeException(this);
-        
-        this.MENSAGEIRO = new Mensageiro(
-                Comunicador.Modo.SERVIDOR,
+        super(Comunicador.Modo.SERVIDOR,
                 portaEscutarUDP,
                 enderecoDoServidor,
-                portaTCPDoServidor,
-                this.GERENCIADOR_DE_EXCEPTION);
+                portaTCPDoServidor);
         
+        
+        this.CONTROLADOR_CLIENTE = controladorCliente;        
         this.ENDERECO_DO_SERVIDOR = enderecoDoServidor;
         
         this.iniciar();
@@ -68,14 +60,8 @@ public class ControladorDeConexao implements nucleo.Jogador, Closeable {
             throw new ErroApresentavelException("Nao foi possivel iniciar a comunicacao com o servidor");
         }
     }
-    
+
     @Override
-    public void close() {
-        this.MENSAGEIRO.close();
-        this.receptor.parar();
-        this.threadDeRecepcao.interrupt();
-    }
-    
     public void receberMensagem(byte[] mensagem) {
         if(mensagem == null) {
             System.out.println("[!] Mano, vc ta jogando uma mensagem nula no interpretador! O que vc tem na cabeça tiw? Programa direito zeh mane");
@@ -219,84 +205,5 @@ public class ControladorDeConexao implements nucleo.Jogador, Closeable {
     public void andarParaDireita() {
         String mensagem = "MSG [UDP] Jogador chama andarParaDireita()";
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem.getBytes());
-    }
-    
-    /* ###################################################################### */
-    
-    private void prepararThreadDeEntrega() {
-        this.receptor = new Receptor(this, this.MENSAGEIRO);
-        this.threadDeRecepcao = new Thread(this.receptor);
-        this.threadDeRecepcao.setName("Entrega_Mensagem");
-    }
-    
-    private void iniciarServicoDeRecepcao() {
-        if(this.receptor == null || this.threadDeRecepcao == null) {
-            this.prepararThreadDeEntrega();
-            this.threadDeRecepcao.start();
-        }
-    }
-    
-    
-    
-    /* ############################## CLASSES ############################### */
-    
-    /**
-     * Possui como funcao retirar mensagens da fila de recebimento e entregar
-     * ao ControladorDeConexao.
-     */
-    public static class Receptor implements Runnable {
-        
-        protected final ControladorDeConexao CONTROLADOR_DE_CONEXAO;
-        protected final Mensageiro MENSAGEIRO;
-        
-        protected boolean emEexecucao = false;
-        
-        public Receptor(ControladorDeConexao controladorDeConexao, Mensageiro mensageiro) {
-            this.CONTROLADOR_DE_CONEXAO = controladorDeConexao;
-            this.MENSAGEIRO = mensageiro;
-        }
-        
-        
-        @Override
-        public void run() {
-            this.emEexecucao = true;
-            while(this.emExecucao()) {
-                byte[] mensagem = this.MENSAGEIRO.removerFilaRecebimento();
-                if(mensagem != null) {
-                    this.CONTROLADOR_DE_CONEXAO.receberMensagem(mensagem);
-                }
-            }
-        }
-        
-        
-        public synchronized boolean emExecucao() {
-            return emEexecucao;
-        }
-        
-        public synchronized void parar() {
-            this.MENSAGEIRO.fecharFilaRecebimento();
-            this.emEexecucao = false;
-        }
-    }
-    
-    /**
-     * Gerenciador de exceptions nao capturadas por metodos, isto eh, que
-     * ocorreram em outras threads.
-     */
-    public class GerenciadorDeException implements Thread.UncaughtExceptionHandler {
-    
-        private final ControladorDeConexao CONTROLADOR_DE_CONEXAO;
-        
-        public GerenciadorDeException(ControladorDeConexao controlador) {
-            this.CONTROLADOR_DE_CONEXAO = controlador;
-        }
-        
-        @Override
-        public void uncaughtException(Thread th, Throwable ex) {
-            Logger.registrar(ERRO, new String[]{"INTERPRETADOR"}, "Erro na comunicacao: " + ex.getMessage());
-            Logger.registrar(INFO, new String[]{"INTERPRETADOR"}, "Encerrando devido a falha de comunicacao");
-            this.CONTROLADOR_DE_CONEXAO.close();
-        }
-        
     }
 }

@@ -1,5 +1,6 @@
 package nucleo;
 
+import jogo.Jogador;
 import java.io.Closeable;
 import java.net.InetAddress;
 import stub.ControladorDeConexao;

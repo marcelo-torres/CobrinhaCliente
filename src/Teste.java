@@ -4,6 +4,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -17,59 +19,37 @@ import java.util.regex.Pattern;
  */
 public class Teste {
     
+    public static String empacotarChamadaDeMetodo(String metodo, String... parametrosDoMetodo) {
+        JSONObject mensagem = new JSONObject();
+        
+        JSONArray parametros = new JSONArray();
+        for(String parametro : parametrosDoMetodo) {
+            parametros.put(parametro);
+        }
+        
+        JSONObject chamadaDeMetodo = new JSONObject();
+        chamadaDeMetodo.put("nome", metodo);
+        chamadaDeMetodo.put("parametros", parametros);
+        
+        mensagem.put("chamada_de_metodo", chamadaDeMetodo);
+        
+        return mensagem.toString();
+    }
+    
     public static void main(String[] args) throws Exception{
-        /*String s = "UDP_ABRIR 52445";
         
-        Pattern p = Pattern.compile("\\d+");
-        Matcher m = p.matcher(s);
-        while(m.find()) {
-            System.out.println(m.group());
-        }*/
+        String m = empacotarChamadaDeMetodo("andarParaEsquerda", "Para1", "Para2");
+         
+        JSONObject decodificador = new JSONObject(m);
+        JSONObject chamada_de_metodo = decodificador.getJSONObject("chamada_de_metodo");
+        JSONArray parametros = chamada_de_metodo.getJSONArray("parametros");
+         
+        System.out.println("Parametros");
+        for (int i = 0; i < parametros.length(); i++) {
+            System.out.println("(" + i + ") " + parametros.get(i));
+        }
+        System.out.println();
         
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                
-                try {
-                    
-                    int porta = 6666;
-                
-                    DatagramSocket s = new DatagramSocket();
-                
-                    s.connect(InetAddress.getLocalHost(), porta);
-
-                    int i = 0;
-                    while(i++ < 4) {
-                        new Thread().sleep(200);
-                        System.out.println(s.getRemoteSocketAddress());
-                        byte[] buffer = "CHEGUEIIIIIIIIIII".getBytes();
-                        DatagramPacket p = new DatagramPacket(buffer, buffer.length);
-                        s.send(p);
-                        s.send(p);
-                    }
-                } catch(Exception e) {
-                }
-            }
-        }).start();
-            
-        
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    DatagramSocket s2 = new DatagramSocket(6666);
-                    byte[] chegou = new byte[1024];
-                    DatagramPacket pacote = new DatagramPacket(chegou, chegou.length);
-                    System.out.println("porta");
-                    int i = 0;
-                    while(i++ < 3) {
-                        s2.receive(pacote);
-                        System.out.println("A: " + new String(pacote.getData()));
-                    }
-                } catch(Exception e) {
-                        e.printStackTrace();
-                }
-            }
-         }).start();
+        System.out.println(m);
     }
 }

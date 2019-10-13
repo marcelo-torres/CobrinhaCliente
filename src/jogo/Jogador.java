@@ -1,4 +1,4 @@
-package nucleo;
+package jogo;
 
 import java.io.Closeable;
 
