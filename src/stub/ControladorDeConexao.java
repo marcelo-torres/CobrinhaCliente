@@ -16,31 +16,19 @@ import stub.comunicacao.Comunicador;
 /**
  * blablablala escrever
  */
-public class ControladorDeConexaoTeste extends Stub implements aplicacao.jogo.Jogador {
-    
-    //private final Semaphore SEMAFORO_ATICAO_UDP = new Semaphore(0);
+public class ControladorDeConexao extends Stub implements aplicacao.jogo.Jogador {
     
     private final ControladorCliente CONTROLADOR_CLIENTE;
- 
     private final InetAddress ENDERECO_DO_SERVIDOR;
+    private final GerenciadorDeConexaoUDPRemota GERENCIADOR_CONEXAO_UDP;   
     
-    private final GerenciadorDeConexaoUDPRemota GERENCIADOR_CONEXAO_UDP;
-    
-
-    
-    private Pattern PADRAO_NUMERO = Pattern.compile("\\d+");
-    private boolean hostProntoParaReceberUDP = false;
-    
-    
-    
-    public ControladorDeConexaoTeste(
+    public ControladorDeConexao(
             ControladorCliente controladorCliente,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor) {
         super(Comunicador.Modo.CLIENTE,
                 enderecoDoServidor,
                 portaTCPDoServidor);
-        
         
         this.CONTROLADOR_CLIENTE = controladorCliente;        
         this.ENDERECO_DO_SERVIDOR = enderecoDoServidor;
@@ -64,7 +52,7 @@ public class ControladorDeConexaoTeste extends Stub implements aplicacao.jogo.Jo
     
     @Override
     public void iniciarPartida() {  
-        byte[] mensagem = this.INTERPRETADOR.codificarExibirMensagem("MSG [TCP] Jogador chama iniciarPartida()");
+        byte[] mensagem = this.INTERPRETADOR.codificarIniciarPartida();
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
         
         try {
@@ -77,7 +65,7 @@ public class ControladorDeConexaoTeste extends Stub implements aplicacao.jogo.Jo
 
     @Override
     public void desistirDeProcurarPartida() {
-        byte[] mensagem = this.INTERPRETADOR.codificarExibirMensagem("MSG [TCP] Jogador chama desistirDeProcurarPartida()");
+        byte[] mensagem = this.INTERPRETADOR.codificarDesistirDeProcurarPartida();
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
         /*if(!this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
             try {
@@ -91,7 +79,7 @@ public class ControladorDeConexaoTeste extends Stub implements aplicacao.jogo.Jo
     
     @Override
     public void encerrarPartida() {
-        byte[] mensagem = this.INTERPRETADOR.codificarExibirMensagem("MSG [TCP] Jogador chama encerrarPartida()");
+        byte[] mensagem = this.INTERPRETADOR.codificarEncerrarPartida();
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
         //if(this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
             this.MENSAGEIRO.close();
@@ -100,25 +88,25 @@ public class ControladorDeConexaoTeste extends Stub implements aplicacao.jogo.Jo
 
     @Override
     public void andarParaCima() {
-        byte[] mensagem = this.INTERPRETADOR.codificarExibirMensagem("MSG [UDP] Jogador chama andarParaCima()");
+        byte[] mensagem = this.INTERPRETADOR.codificarAndarParaCima();
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
     }
 
     @Override
     public void andarParaBaixo() {
-        byte[] mensagem = this.INTERPRETADOR.codificarExibirMensagem("MSG [UDP] Jogador chama andarParaBaixo()");
+        byte[] mensagem = this.INTERPRETADOR.codificarAndarParaBaixo();
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
     }
 
     @Override
     public void andarParaEsquerda() {
-        byte[] mensagem = this.INTERPRETADOR.codificarExibirMensagem("MSG [UDP] Jogador chama andarParaEsquerda()");
+        byte[] mensagem = this.INTERPRETADOR.codificarAndarParaEsquerda();
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
     }
 
     @Override
     public void andarParaDireita() {
-        byte[] mensagem = this.INTERPRETADOR.codificarExibirMensagem("MSG [UDP] Jogador chama andarParaDireita()");
+        byte[] mensagem = this.INTERPRETADOR.codificarAndarParaDireita();
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
     }
     

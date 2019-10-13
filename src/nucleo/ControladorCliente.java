@@ -3,7 +3,7 @@ package nucleo;
 import aplicacao.jogo.Jogador;
 import java.io.Closeable;
 import java.net.InetAddress;
-import stub.ControladorDeConexaoTeste;
+import stub.ControladorDeConexao;
 
 public class ControladorCliente implements Closeable {
 
@@ -12,7 +12,7 @@ public class ControladorCliente implements Closeable {
     public ControladorCliente(
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor) {
-        this.JOGADOR = new ControladorDeConexaoTeste(this, enderecoDoServidor, portaTCPDoServidor);
+        this.JOGADOR = new ControladorDeConexao(this, enderecoDoServidor, portaTCPDoServidor);
     }
     
     @Override
