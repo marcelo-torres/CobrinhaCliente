@@ -1,10 +1,8 @@
-package aplicacao.jogo;
+package aplicacao.model.agentes;
 
 import java.io.Closeable;
 
 public interface Jogador extends Closeable  {
-    
-    // DEFINIR RETORNOS
     
     public void iniciarPartida();
     public void desistirDeProcurarPartida();

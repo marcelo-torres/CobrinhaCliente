@@ -2,11 +2,9 @@ package stub;
 
 import Logger.Logger;
 import static Logger.Logger.Tipo.ERRO;
-import aplicacao.jogo.ControladorDePartida;
+import aplicacao.model.agentes.ControladorDePartida;
 import java.net.InetAddress;
-import java.util.regex.Pattern;
 import java.util.LinkedList;
-import nucleo.ControladorCliente;
 import stub.comando.Comando;
 import stub.comando.ComandoExibirMensagem;
 import stub.comando.controlador_de_partida.AdversarioSaiu;
@@ -23,7 +21,7 @@ import stub.comunicacao.Comunicador;
  * Eh o Stub do cliente. Responsavel por esconder da aplicacao que a implementacao
  * real do objeto Jogador esta em outra maquina.
  */
-public class ControladorDeConexao extends Stub implements aplicacao.jogo.Jogador {
+public class ControladorDeConexao extends Stub implements aplicacao.model.agentes.Jogador {
     
     private final ControladorDePartida CONTROLADOR_DE_PARTIDA;
     private final InetAddress ENDERECO_DO_SERVIDOR;
@@ -49,7 +47,8 @@ public class ControladorDeConexao extends Stub implements aplicacao.jogo.Jogador
     @Override
     public void receberMensagem(byte[] mensagem) {
         if(mensagem == null) {
-            System.out.println("[!] Mano, vc ta jogando uma mensagem nula no interpretador! O que vc tem na cabeça tiw? Programa direito zeh mane");
+           Logger.registrar(ERRO, new String[]{"GERENCIADOR_DE_CLIENTE"}, "Mensagem nula recebida. A mensagem sera ignorada.");
+           return;
         }
         
         this.INTERPRETADOR.interpretar(mensagem);  

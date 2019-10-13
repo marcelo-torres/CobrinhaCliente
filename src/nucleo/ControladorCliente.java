@@ -1,9 +1,10 @@
 package nucleo;
 
-import aplicacao.jogo.ControladorDePartida;
-import aplicacao.jogo.Jogador;
+import aplicacao.model.agentes.ControladorDePartida;
+import aplicacao.model.agentes.Jogador;
 import java.io.Closeable;
 import java.net.InetAddress;
+import model.send.Arena;
 import stub.ControladorDeConexao;
 
 public class ControladorCliente implements ControladorDePartida, Closeable {
@@ -64,6 +65,11 @@ public class ControladorCliente implements ControladorDePartida, Closeable {
 
     @Override
     public void falhaAoLogar(String mensagem) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void entregarQuadro(Arena arena) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
