@@ -17,6 +17,10 @@ public abstract class Comando {
         }
     }
     
+    private static void removerComando(Comando comando) {
+        COMANDOS.remove(comando.getCodigo());
+    }
+    
     
     private final String CODIGO;
     
@@ -24,7 +28,7 @@ public abstract class Comando {
         this.CODIGO = codigo;
         boolean sucesso = Comando.cadastrarComando(codigo, this);
         if(!sucesso) {
-            throw new IllegalArgumentException("Nao eh possivel criar o comando. O codigo " + codigo + " ja esta sendo usado por um comando");
+            //throw new IllegalArgumentException("Nao eh possivel criar o comando. O codigo " + codigo + " ja esta sendo usado por um comando");
         }
     }
     
@@ -32,6 +36,11 @@ public abstract class Comando {
         return this.CODIGO;
     }
     
+    public void removerDoCatalogo() {
+        Comando.removerComando(this);
+    }
+    
     public abstract void executar();
     
+    public abstract void definirParametros(String... parametros);
 }

@@ -6,19 +6,17 @@ import nucleo.ControladorCliente;
 
 public class Cliente implements Closeable {
     
-    private final int PORTA_ESCUTAR_UDP;
     private final InetAddress ENDERECO_SERVIDOR;
     private final int PORTA_TCP_SERVIDOR;
 
     private final ControladorCliente CONTROLADOR_CLIENTE;
     
     
-    public Cliente(int portaEscutarUDP, InetAddress enderecoServidor, int portaTCPServidor) {
-        this.PORTA_ESCUTAR_UDP = portaEscutarUDP;
+    public Cliente(InetAddress enderecoServidor, int portaTCPServidor) {
         this.ENDERECO_SERVIDOR = enderecoServidor;
         this.PORTA_TCP_SERVIDOR = portaTCPServidor;
         
-        this.CONTROLADOR_CLIENTE = new ControladorCliente(this.PORTA_ESCUTAR_UDP, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
+        this.CONTROLADOR_CLIENTE = new ControladorCliente(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
     }
     
     private void iniciar() {
@@ -41,7 +39,6 @@ public class Cliente implements Closeable {
     
     public static void main(String[] args) {
         
-        int portaEscutarUDP = 1235;
         InetAddress enderecoServidor = null;
         try {
             enderecoServidor = InetAddress.getByName("127.0.0.1");
@@ -50,7 +47,7 @@ public class Cliente implements Closeable {
         }     
         int portaTCPServidor = 2573;
         
-        Cliente cliente = new Cliente(portaEscutarUDP, enderecoServidor, portaTCPServidor);
+        Cliente cliente = new Cliente(enderecoServidor, portaTCPServidor);
         
         try{
             cliente.iniciar();
@@ -64,16 +61,17 @@ public class Cliente implements Closeable {
             e.printStackTrace();
         }
         
+        System.out.println("Vamos encerrar o cliente");
         cliente.close();
 
-        /*
-        try{
+        
+        /*try{
             new Thread().sleep(3 * 1000);
         } catch(Exception e) {
             e.printStackTrace();
         }
          
-        Ver threads q estao ativas
+        //Ver threads q estao ativas
         Thread.getAllStackTraces().keySet().forEach((t) -> System.out.println(t.getName() + "  " + " Is Alive: " + t.isAlive()));
         */
     }

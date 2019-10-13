@@ -1,6 +1,6 @@
 package stub.comando.controlador_de_partida;
 
-import jogo.ControladorDePartida;
+import aplicacao.jogo.ControladorDePartida;
 import stub.comando.Comando;
 
 public abstract class ComandoControladorDePartida extends Comando {

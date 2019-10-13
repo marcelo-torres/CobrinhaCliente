@@ -1,19 +1,18 @@
 package nucleo;
 
-import jogo.Jogador;
+import aplicacao.jogo.Jogador;
 import java.io.Closeable;
 import java.net.InetAddress;
-import stub.ControladorDeConexao;
+import stub.ControladorDeConexaoTeste;
 
 public class ControladorCliente implements Closeable {
 
     private final Jogador JOGADOR;
     
     public ControladorCliente(
-            int portaEscutarUDP,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor) {
-        this.JOGADOR = new ControladorDeConexao(this, portaEscutarUDP, enderecoDoServidor, portaTCPDoServidor);
+        this.JOGADOR = new ControladorDeConexaoTeste(this, enderecoDoServidor, portaTCPDoServidor);
     }
     
     @Override

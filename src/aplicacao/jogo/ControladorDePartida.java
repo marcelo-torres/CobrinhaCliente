@@ -1,4 +1,4 @@
-package jogo;
+package aplicacao.jogo;
 
 public interface ControladorDePartida {
     

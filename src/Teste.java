@@ -36,7 +36,13 @@ public class Teste {
         return mensagem.toString();
     }
     
+    public static void teste(Object... a) {
+        
+    }
+    
     public static void main(String[] args) throws Exception{
+        
+        teste(new Object[10]);
         
         String m = empacotarChamadaDeMetodo("andarParaEsquerda", "Para1", "Para2");
          
@@ -51,5 +57,6 @@ public class Teste {
         System.out.println();
         
         System.out.println(m);
+        
     }
 }

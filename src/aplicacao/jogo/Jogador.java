@@ -1,4 +1,4 @@
-package jogo;
+package aplicacao.jogo;
 
 import java.io.Closeable;
 

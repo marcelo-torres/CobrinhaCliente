@@ -1,6 +1,6 @@
 package stub.comando.controlador_de_partida;
 
-import jogo.ControladorDePartida;
+import aplicacao.jogo.ControladorDePartida;
 
 public class VoceGanhou extends ComandoControladorDePartida {
     
@@ -13,4 +13,8 @@ public class VoceGanhou extends ComandoControladorDePartida {
         super.CONTROLADOR_PARTIDA.voceGanhou();
     }
     
+    @Override
+    public void definirParametros(String... parametros) {
+       throw new UnsupportedOperationException("Nenhum parametro necessario");
+    }
 }

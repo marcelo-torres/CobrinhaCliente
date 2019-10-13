@@ -4,7 +4,11 @@ import Logger.Logger;
 import static Logger.Logger.Tipo.ERRO;
 import static Logger.Logger.Tipo.INFO;
 import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.util.concurrent.Semaphore;
+import aplicacao.jogo.ErroApresentavelException;
+import java.net.Socket;
 import stub.comunicacao.Comunicador;
 import stub.comunicacao.Mensageiro;
 
@@ -12,16 +16,16 @@ public abstract class Stub implements Closeable {
     
     private final GerenciadorDeException GERENCIADOR_DE_EXCEPTION;
     protected final Mensageiro MENSAGEIRO;
+    protected final Interpretador INTERPRETADOR = new Interpretador();
     
     private Receptor receptor;
     private Thread threadDeRecepcao;
     
     public Stub(Comunicador.Modo modo,
-                int portaEscutarUDP,
                 InetAddress enderecoDoServidor,
                 int portaTCPDoServidor) {
         
-        this.GERENCIADOR_DE_EXCEPTION = new ControladorDeConexao.GerenciadorDeException(this);
+        this.GERENCIADOR_DE_EXCEPTION = new GerenciadorDeException(this);
         
         this.MENSAGEIRO = new Mensageiro(
                 modo,
@@ -32,8 +36,29 @@ public abstract class Stub implements Closeable {
     
     public abstract void receberMensagem(byte[] mensagem);
     
+    protected void iniciar(Socket socket) {
+        try {
+            this.MENSAGEIRO.iniciarTCP(socket);
+            this.iniciarServicoDeRecepcao();
+        } catch(IOException ioe) {
+            Logger.registrar(ERRO, new String[]{"STUB"}, "Erro ao tentar iniciar a comunicaca: " + ioe.getMessage(), ioe);
+            throw new ErroApresentavelException("Nao foi possivel iniciar a comunicacao com o servidor");
+        }
+    }
+    
+    protected void iniciar() {
+        try {
+            this.MENSAGEIRO.iniciarTCP();
+            this.iniciarServicoDeRecepcao();
+        } catch(IOException ioe) {
+            Logger.registrar(ERRO, new String[]{"STUB"}, "Erro ao tentar iniciar a comunicaca: " + ioe.getMessage(), ioe);
+            throw new ErroApresentavelException("Nao foi possivel iniciar a comunicacao com o servidor");
+        }
+    }
+    
     @Override
     public void close() {
+        this.INTERPRETADOR.close();
         this.MENSAGEIRO.close();
         this.receptor.parar();
         this.threadDeRecepcao.interrupt();
@@ -101,6 +126,65 @@ public abstract class Stub implements Closeable {
     
     public class GerenciadorDeConexaoUDPRemota {
     
+        private final Semaphore SEMAFORO_ATICAO_UDP = new Semaphore(0);
+        private final Mensageiro MENSAGEIRO;
+        private final InetAddress ENDERECO_DO_SERVIDOR;
+        private final Interpretador INTERPRETADOR;
+        
+        private boolean hostProntoParaReceberUDP;
+        
+        public GerenciadorDeConexaoUDPRemota(Mensageiro mensageiro, InetAddress enderecoServidor, Interpretador interpretador) {
+            this.MENSAGEIRO = mensageiro;
+            this.ENDERECO_DO_SERVIDOR = enderecoServidor;
+            this.INTERPRETADOR = interpretador;
+        }
+        
+        
+        public void iniciarPedidoDeAberturaUDP() {
+            try {
+                if(!this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
+                    this.MENSAGEIRO.iniciarUDP(-1);
+                    
+                    int portaDeEscutaServidor = this.MENSAGEIRO.getPortaEscutaUDP();
+                    byte[] mensagem = this.INTERPRETADOR.codificarAtenderPedidoInicioDeAberturaUDP(portaDeEscutaServidor);
+                    
+                    this.MENSAGEIRO.inserirFilaEnvioTCPNaFrente(mensagem);
+                }
+            } catch(IOException ioe) {
+                Logger.registrar(ERRO, new String[]{"STUB"}, "Erro ao tentar iniciar a comunicacao.", ioe);
+                this.SEMAFORO_ATICAO_UDP.release();
+                throw new RuntimeException("Nao foi possivel iniciar a comunicacao com o servidor");
+            }
+        }
+
+        public void atenderPedidoInicioDeAberturaUDP(int portaUDPServidor) {
+            try {
+                if(!this.MENSAGEIRO.comunicadorUDPEstaAberto()) {
+                    this.MENSAGEIRO.iniciarUDP(-1);
+                }
+                
+                int portaDeEscutaServidor = this.MENSAGEIRO.getPortaEscutaUDP();
+                byte[] mensagem = this.INTERPRETADOR.codificarContinuarAberturaUDP(portaDeEscutaServidor);
+                
+                this.MENSAGEIRO.inserirFilaEnvioTCPNaFrente(mensagem);
+                this.MENSAGEIRO.definirDestinatario(ENDERECO_DO_SERVIDOR, portaUDPServidor);
+                this.hostProntoParaReceberUDP = true;
+            } catch(IOException ioe) {
+                Logger.registrar(ERRO, new String[]{"INTERPRETADOR"}, "Erro ao tentar iniciar a comunicacao.", ioe);
+                this.SEMAFORO_ATICAO_UDP.release();
+                throw new RuntimeException("Nao foi possivel iniciar a comunicacao com o servidor");
+            }
+        }
+
+        public void continuarAberturaUDP(int portaUDPServidor) {
+            this.MENSAGEIRO.definirDestinatario(this.ENDERECO_DO_SERVIDOR, portaUDPServidor);
+            this.hostProntoParaReceberUDP = true;
+            this.SEMAFORO_ATICAO_UDP.release();
+        }
+        
+        public void aguardarComunicacaoSerEstabelecida() throws InterruptedException {
+            this.SEMAFORO_ATICAO_UDP.acquire();
+        }
     }
     
     
