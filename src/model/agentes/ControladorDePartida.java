@@ -1,4 +1,4 @@
-package aplicacao.model.agentes;
+package model.agentes;
 
 import model.send.Arena;
 

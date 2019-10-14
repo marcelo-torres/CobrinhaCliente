@@ -2,7 +2,7 @@ package stub;
 
 import Logger.Logger;
 import static Logger.Logger.Tipo.ERRO;
-import aplicacao.model.agentes.ControladorDePartida;
+import model.agentes.ControladorDePartida;
 import java.net.InetAddress;
 import java.util.LinkedList;
 import stub.comando.Comando;
@@ -21,7 +21,7 @@ import stub.comunicacao.Comunicador;
  * Eh o Stub do cliente. Responsavel por esconder da aplicacao que a implementacao
  * real do objeto Jogador esta em outra maquina.
  */
-public class ControladorDeConexao extends Stub implements aplicacao.model.agentes.Jogador {
+public class ControladorDeConexao extends Stub implements model.agentes.Jogador {
     
     private final ControladorDePartida CONTROLADOR_DE_PARTIDA;
     private final InetAddress ENDERECO_DO_SERVIDOR;

@@ -1,7 +1,7 @@
 package nucleo;
 
-import aplicacao.model.agentes.ControladorDePartida;
-import aplicacao.model.agentes.Jogador;
+import model.agentes.ControladorDePartida;
+import model.agentes.Jogador;
 import java.io.Closeable;
 import java.net.InetAddress;
 import model.send.Arena;
