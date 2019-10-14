@@ -1,13 +1,13 @@
 package stub.comando.jogador;
 
-import model.agentes.Jogador;
 import stub.comando.Comando;
+import model.agentes.IJogador;
 
 public abstract class ComandoJogador extends Comando {
 
-    protected final Jogador JOGADOR;
+    protected final IJogador JOGADOR;
     
-    public ComandoJogador(String codigo, Jogador jogador) {
+    public ComandoJogador(String codigo, IJogador jogador) {
         super(codigo);
         this.JOGADOR = jogador;
     }

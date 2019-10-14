@@ -1,15 +1,15 @@
 package nucleo;
 
 import model.agentes.ControladorDePartida;
-import model.agentes.Jogador;
 import java.io.Closeable;
 import java.net.InetAddress;
 import model.send.Arena;
 import stub.ControladorDeConexao;
+import model.agentes.IJogador;
 
 public class ControladorCliente implements ControladorDePartida, Closeable {
 
-    private final Jogador JOGADOR;
+    private final IJogador JOGADOR;
     
     public ControladorCliente(
             InetAddress enderecoDoServidor,
