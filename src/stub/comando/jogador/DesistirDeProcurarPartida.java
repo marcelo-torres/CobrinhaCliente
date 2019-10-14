@@ -1,6 +1,7 @@
 package stub.comando.jogador;
 
 import model.agentes.IJogador;
+import stub.comando.Parametros;
 
 public class DesistirDeProcurarPartida extends ComandoJogador {
     
@@ -14,7 +15,7 @@ public class DesistirDeProcurarPartida extends ComandoJogador {
     }
     
     @Override
-    public void definirParametros(String... parametros) {
+    public void definirParametros(Parametros parametros) {
        throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }

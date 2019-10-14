@@ -14,5 +14,5 @@ public abstract class Comando {
     
     public abstract void executar();
     
-    public abstract void definirParametros(String... parametros);
+    public abstract void definirParametros(Parametros parametros);
 }

@@ -17,6 +17,11 @@ import org.json.JSONObject;
 import stub.comando.Comando;
 
 import com.google.gson.*;
+import stub.comando.ComandoExibirMensagem;
+import stub.comando.ComandoExibirMensagemParametros;
+import stub.comando.Parametros;
+import stub.comando.gerenciador_de_udp.AtenderPedidoInicioDeAberturaUDPParametros;
+import stub.comando.gerenciador_de_udp.ContinuarAberturaUDPParametros;
 
 /**
  * Realiza o trabalho de interpretar mensagens recebidas no formato de vetor de
@@ -32,35 +37,36 @@ public class Interpretador {
     private final Charset CHARSET_PADRAO = Charset.forName("UTF-8");
     private final HashMap<String, Comando> COMANDOS = new HashMap<>();
     
-    private byte[] empacotarChamadaDeMetodoComParametroObjeto(String metodo, Object vetorDeObjetos) {
-        JSONObject mensagem = new JSONObject();
-        
-        JSONObject chamadaDeMetodo = new JSONObject();
-        chamadaDeMetodo.put("nome", metodo);
-        chamadaDeMetodo.put("parametros", vetorDeObjetos);
-        
-        mensagem.put("chamada_de_metodo", chamadaDeMetodo);
-        
-        return mensagem.toString().getBytes();
-    }
+    private static class PacoteDeChamaRemota {
     
-    private byte[] empacotarChamadaDeMetodo(String metodo, String... parametrosDoMetodo) {
-        JSONObject mensagem = new JSONObject();
+        private String nomeDoMetodo;
+        private Parametros parametros;
         
-        JSONArray parametros = new JSONArray();
-        if(parametrosDoMetodo != null) {
-            for(String parametro : parametrosDoMetodo) {
-                parametros.put(parametro);
-            }
+        public PacoteDeChamaRemota(String nomeDoMetodo, Parametros parametros) {
+            this.nomeDoMetodo = nomeDoMetodo;
+            this.parametros = parametros;
         }
         
-        JSONObject chamadaDeMetodo = new JSONObject();
-        chamadaDeMetodo.put("nome", metodo);
-        chamadaDeMetodo.put("parametros", parametros);
+        public String getNomeDoMetodo() {
+            return this.nomeDoMetodo;
+        }
         
-        mensagem.put("chamada_de_metodo", chamadaDeMetodo);
+        public Parametros getParametros() {
+            return this.parametros;
+        }
+    }
+    
+    private byte[] empacotarChamadaDeMetodo(String metodo) {
+        return empacotarChamadaDeMetodo(metodo, new Parametros());
+    }
+    
+    private byte[] empacotarChamadaDeMetodo(String metodo, Parametros parametros) {
+        PacoteDeChamaRemota pacote = new PacoteDeChamaRemota(metodo, parametros);
         
-        return mensagem.toString().getBytes();
+        Gson gson = new Gson();
+        String json = gson.toJson(pacote);
+        
+        return json.getBytes();
     }
     
     /**
@@ -105,33 +111,27 @@ public class Interpretador {
      */
     public void interpretar(byte[] mensagem) {
         String mensagemTextual = new String(mensagem, this.CHARSET_PADRAO);
-        JSONObject mensagemJSON = new JSONObject(mensagemTextual);
         
-        JSONObject chamadaDeMetodoJSON = mensagemJSON.getJSONObject("chamada_de_metodo");
-        JSONArray parametrosJSON = chamadaDeMetodoJSON.getJSONArray("parametros");
+        Gson gson = new Gson();
+        PacoteDeChamaRemota pacoteDeChamadaRemota = gson.fromJson(mensagemTextual, PacoteDeChamaRemota.class);
         
-        String chamadaDeMetodo = chamadaDeMetodoJSON.getString("nome");
-        String[] parametros = this.extrairParametros(parametrosJSON);
-        
-        Comando comando = this.COMANDOS.get(chamadaDeMetodo);
-        if(comando == null) {
-            throw new RuntimeException("O interpretador nao pode interpretador o comando: \"" + chamadaDeMetodo + "\" comando nao cadastrado");
+        Comando comando = this.COMANDOS.get(pacoteDeChamadaRemota.getNomeDoMetodo());
+        if(comando != null) {
+            comando.definirParametros(pacoteDeChamadaRemota.getParametros());
+            comando.executar();
+        } else {
+            throw new RuntimeException("Comando com a chave " + pacoteDeChamadaRemota.getNomeDoMetodo() + " nao encontrado");
         }
-        
-        if(parametros.length > 0) {
-            comando.definirParametros(parametros);
-        }
-        comando.executar();
     }
     
-    private String[] extrairParametros(JSONArray JSONArray) {
+    /*private String[] extrairParametros(JSONArray JSONArray) {
         String[] vetor = new String[JSONArray.length()];
         for (int i = 0; i < JSONArray.length(); i++) {
             vetor[i] = JSONArray.get(i).toString();
         }
         
         return vetor;
-    }
+    }*/
     
     
     /* ###################################################################### */
@@ -141,19 +141,23 @@ public class Interpretador {
     /* ##################### COMANDO GERENCIADOR DE UDP ##################### */
     
     public byte[] codificarExibirMensagem(String mensagemTextual) {
-        byte[] mensagem = this.empacotarChamadaDeMetodo("exibirMensagem", mensagemTextual);
+        ComandoExibirMensagemParametros comandoExibirMensagemParametros = new ComandoExibirMensagemParametros();
+        comandoExibirMensagemParametros.setMensagem(mensagemTextual);
+        byte[] mensagem = this.empacotarChamadaDeMetodo("exibirMensagem", comandoExibirMensagemParametros);
         return mensagem;
     }
     
     public byte[] codificarAtenderPedidoInicioDeAberturaUDP(int portaUDPServidor) {
-        String arg0 = String.valueOf(portaUDPServidor);
-        byte[] mensagem = this.empacotarChamadaDeMetodo("atenderPedidoInicioDeAberturaUDP", arg0);
+        AtenderPedidoInicioDeAberturaUDPParametros parametro = new AtenderPedidoInicioDeAberturaUDPParametros();
+        parametro.setPortaUDPServidor(portaUDPServidor);
+        byte[] mensagem = this.empacotarChamadaDeMetodo("atenderPedidoInicioDeAberturaUDP", parametro);
         return mensagem;
     }
     
     public byte[] codificarContinuarAberturaUDP(int portaUDPServidor) {
-        String arg0 = String.valueOf(portaUDPServidor);
-        byte[] mensagem = this.empacotarChamadaDeMetodo("continuarAberturaUDP", arg0);
+        ContinuarAberturaUDPParametros parametros = new ContinuarAberturaUDPParametros();
+       parametros.setPortaUDPServidor(portaUDPServidor);
+        byte[] mensagem = this.empacotarChamadaDeMetodo("continuarAberturaUDP", parametros);
         return mensagem;
     }
     
@@ -240,8 +244,8 @@ public class Interpretador {
     
     public byte[] codificarEntregarQuadro(Arena arena) {
         byte[] bytes = this.converterParaBytes(arena);
-        byte[] mensagem = this.empacotarChamadaDeMetodoComParametroObjeto("entregarQuadro", bytes);
-        return mensagem;
+        //byte[] mensagem = this.empacotarChamadaDeMetodoComParametroObjeto("entregarQuadro", bytes);
+        return bytes;
     }
     
     

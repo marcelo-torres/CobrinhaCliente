@@ -1,6 +1,7 @@
 package stub.comando.controlador_de_partida;
 
 import model.agentes.ControladorDePartida;
+import stub.comando.Parametros;
 
 public class Logar extends ComandoControladorDePartida {
     
@@ -19,7 +20,8 @@ public class Logar extends ComandoControladorDePartida {
     }
     
     @Override
-    public void definirParametros(String... parametros) {
-       this.login = parametros[0];
+    public void definirParametros(Parametros parametros) {
+       LogarParametros logarParametros = (LogarParametros) parametros;
+       this.login = logarParametros.getLogin();
     }
 }

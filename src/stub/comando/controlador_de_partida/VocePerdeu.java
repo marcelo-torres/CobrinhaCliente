@@ -1,6 +1,7 @@
 package stub.comando.controlador_de_partida;
 
 import model.agentes.ControladorDePartida;
+import stub.comando.Parametros;
 
 public class VocePerdeu extends ComandoControladorDePartida {
     
@@ -14,7 +15,7 @@ public class VocePerdeu extends ComandoControladorDePartida {
     }
  
     @Override
-    public void definirParametros(String... parametros) {
+    public void definirParametros(Parametros parametros) {
        throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }

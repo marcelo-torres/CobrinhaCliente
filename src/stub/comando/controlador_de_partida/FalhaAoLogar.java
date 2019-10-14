@@ -1,6 +1,7 @@
 package stub.comando.controlador_de_partida;
 
 import model.agentes.ControladorDePartida;
+import stub.comando.Parametros;
 
 public class FalhaAoLogar extends ComandoControladorDePartida {
     
@@ -19,7 +20,8 @@ public class FalhaAoLogar extends ComandoControladorDePartida {
     }
     
     @Override
-    public void definirParametros(String... parametros) {
-       this.mensagem = parametros[0];
+    public void definirParametros(Parametros parametros) {
+       FalhaAoLogarParametros falhaAoLogarParametros = (FalhaAoLogarParametros) parametros; 
+       this.mensagem = falhaAoLogarParametros.getMensagem();
     }
 }

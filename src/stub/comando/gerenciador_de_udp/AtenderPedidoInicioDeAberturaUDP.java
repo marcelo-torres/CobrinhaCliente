@@ -1,6 +1,7 @@
 package stub.comando.gerenciador_de_udp;
 
 import stub.Stub;
+import stub.comando.Parametros;
 
 public class AtenderPedidoInicioDeAberturaUDP extends ComandoGerenciadorDePartida {
     
@@ -19,8 +20,8 @@ public class AtenderPedidoInicioDeAberturaUDP extends ComandoGerenciadorDePartid
     }
     
     @Override
-    public void definirParametros(String... parametros) {
-        String parametro1 = parametros[0];
-        this.portaUDPServidor = Integer.valueOf(parametro1); 
+    public void definirParametros(Parametros parametros) {
+        AtenderPedidoInicioDeAberturaUDPParametros atenderPedidoInicioDeAberturaUDPParametros = (AtenderPedidoInicioDeAberturaUDPParametros) parametros; 
+        this.portaUDPServidor = atenderPedidoInicioDeAberturaUDPParametros.getPortaUDPServidor();
     }
 }

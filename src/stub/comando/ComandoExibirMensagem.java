@@ -14,8 +14,9 @@ public class ComandoExibirMensagem extends Comando {
     }
 
     @Override
-    public void definirParametros(String... parametros) {
-        this.mensagem = parametros[0];
+    public void definirParametros(Parametros parametros) {
+        ComandoExibirMensagemParametros comandoExibirMensagemParametros = (ComandoExibirMensagemParametros) parametros;
+        this.mensagem = comandoExibirMensagemParametros.getMensagem();
     }
     
 }
