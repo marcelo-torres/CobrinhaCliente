@@ -1,5 +1,13 @@
 package stub;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,6 +15,8 @@ import model.send.Arena;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import stub.comando.Comando;
+
+import com.google.gson.*;
 
 /**
  * Realiza o trabalho de interpretar mensagens recebidas no formato de vetor de
@@ -21,6 +31,18 @@ public class Interpretador {
     
     private final Charset CHARSET_PADRAO = Charset.forName("UTF-8");
     private final HashMap<String, Comando> COMANDOS = new HashMap<>();
+    
+    private byte[] empacotarChamadaDeMetodoComParametroObjeto(String metodo, Object vetorDeObjetos) {
+        JSONObject mensagem = new JSONObject();
+        
+        JSONObject chamadaDeMetodo = new JSONObject();
+        chamadaDeMetodo.put("nome", metodo);
+        chamadaDeMetodo.put("parametros", vetorDeObjetos);
+        
+        mensagem.put("chamada_de_metodo", chamadaDeMetodo);
+        
+        return mensagem.toString().getBytes();
+    }
     
     private byte[] empacotarChamadaDeMetodo(String metodo, String... parametrosDoMetodo) {
         JSONObject mensagem = new JSONObject();
@@ -183,6 +205,9 @@ public class Interpretador {
         return mensagem;
     }
     
+    
+    /* ################### COMANDO CONTROLADOR DE PARTIDA ################### */
+    
     public byte[] codificarVocerPerdeu() {
         byte[] mensagem = this.empacotarChamadaDeMetodo("vocerPerdeu");
         return mensagem;
@@ -214,8 +239,55 @@ public class Interpretador {
     }
     
     public byte[] codificarEntregarQuadro(Arena arena) {
-        if(true) throw new UnsupportedOperationException("FALTA IMPLEMENTAR A SERIALIZACAO DO QUADRO");
-        byte[] mensagem = this.empacotarChamadaDeMetodo("entregarQuadro"/* EMPACOTAR ARENA AQUI */);
+        byte[] bytes = this.converterParaBytes(arena);
+        byte[] mensagem = this.empacotarChamadaDeMetodoComParametroObjeto("entregarQuadro", bytes);
         return mensagem;
+    }
+    
+    
+    /* ###################### METODOS DE SERIALIZACAO ####################### */
+    
+    // Retirado de <https://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array>
+    public byte[] converterParaBytes(Serializable objeto) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = null;
+        try {
+            out = new ObjectOutputStream(bos);   
+            out.writeObject(objeto);
+            out.flush();
+            byte[] yourBytes = bos.toByteArray();
+            return yourBytes;
+        } catch(IOException ioe) {
+            return null;
+        } finally {
+            try {
+              bos.close();
+            } catch (IOException ex) {
+              // ignore close exception
+            }
+        }
+    }
+    
+    // Retirado de <https://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array>
+    public Object converterParaObjeto(byte[] bytes) {
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        ObjectInput in = null;
+        try {
+            in = new ObjectInputStream(bis);
+            Object objeto = in.readObject();
+            return objeto;
+        } catch(IOException ioe) {
+            return null;
+        } catch(ClassNotFoundException cnfe) {
+            return null;
+        }finally {
+            try {
+                if(in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+              // ignore close exception
+            } 
+        }
     }
 }
