@@ -30,6 +30,10 @@ public class EntidadePosicionavel {
         }
     }
     
+    public void setCor(Color cor){
+        this.cor = cor;
+    }
+    
     public Color getCor(){
         return cor;
     }

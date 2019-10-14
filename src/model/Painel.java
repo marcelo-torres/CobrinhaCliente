@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 @SuppressWarnings("Serial")
- 
-public class Painel extends JPanel implements Runnable, KeyListener {
+
+public class Painel extends JPanel implements KeyListener {
     
     // Controlador
     private final ControladorTelaJogo controlador;
@@ -25,12 +25,7 @@ public class Painel extends JPanel implements Runnable, KeyListener {
     // Render
     private Graphics2D g2d;
     private BufferedImage image;
-    
-    // Game Loop
-    private Thread thread;
-    private boolean running;
-    private long targetTime;
-    
+        
     // Game Stuff
     Arena arena;
     Pixel cabeca1;
@@ -39,6 +34,8 @@ public class Painel extends JPanel implements Runnable, KeyListener {
     ArrayList<Pixel> cobra2;
     ArrayList<Pixel> alimentos;
 
+    int jogadorAtual;
+    
     public Painel(Arena ar, ControladorTelaJogo ctr) {
         setPreferredSize(new Dimension(ar.getLargura(), ar.getAltura()));
         setFocusable(true);
@@ -49,10 +46,19 @@ public class Painel extends JPanel implements Runnable, KeyListener {
         controlador = ctr;
     }
     
-    //Método do cliente
+    public void setJogadorAtual(int numeroJogador){
+        jogadorAtual = numeroJogador;
+    }
+    
     public void atualizaPainel(){
+        if(jogadorAtual != 1){
+            Color c = arena.getCobra1().getCor();
+            arena.getCobra1().setCor(arena.getCobra2().getCor());
+            arena.getCobra2().setCor(c);
+        }
         setCobras();
         setAlimentos();
+        requestRender();
     }
     
     public void setCobras(){
@@ -100,48 +106,10 @@ public class Painel extends JPanel implements Runnable, KeyListener {
             alimentos.add(pixel);
         }
     }
-    
-    public void setFPS(int fps) {
-        targetTime = 1000/fps;
-    }
-    
-    @Override
-    public void addNotify() {
-        super.addNotify();
-        thread = new Thread(this);
-        thread.start();
-    }
-    
-    @Override
-    public void run() {
-        if(running) return;
-        init();
-        long startTime;
-        long elapsed;
-        long wait;
-        while(running) {
-            startTime = System.nanoTime();
-            
-            controlador.update();
-            requestRender();
-            
-            elapsed = System.nanoTime() - startTime;
-            wait = targetTime - elapsed / 1000000;    
-            if(wait > 0) {
-                try {
-                    Thread.sleep(wait);
-                } catch(InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
-    private void init() {
+    public void iniciarPainel() {
         image = new BufferedImage(arena.getLargura(), arena.getLargura(), BufferedImage.TYPE_INT_ARGB);
         g2d = image.createGraphics();
-        running = true;
-        controlador.iniciarJogo();
     }
     
     private void requestRender() {
@@ -170,11 +138,12 @@ public class Painel extends JPanel implements Runnable, KeyListener {
             e.render(g2d);
         }
         
+    }
+    
+    public void escreverMensagemDerrota(){
         g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
-        if(controlador.isGameOver()){
-            g2d.setColor(Color.RED);
-            g2d.drawString("Você foi derrotado! Bua bua bua :c" , 200, 200);
-        }
+        g2d.setColor(Color.RED);
+        g2d.drawString("Você foi derrotado! Bua bua bua :c" , 200, 200);
     }
 
     @Override
@@ -185,35 +154,33 @@ public class Painel extends JPanel implements Runnable, KeyListener {
     public void keyPressed(KeyEvent e) {
         int k = e.getKeyCode();
         
+        if(controlador.isGameOver()) return;
+        
         switch(k){
             case KeyEvent.VK_UP:
-                controlador.setUp(true);
+                controlador.up();
                 break;
             case KeyEvent.VK_DOWN:
-                controlador.setDown(true);
+                controlador.down();
                 break;
             case KeyEvent.VK_RIGHT:
-                controlador.setRight(true);
+                controlador.right();
                 break;
             case KeyEvent.VK_LEFT:
-                controlador.setLeft(true);
-                break;
-            
-            case KeyEvent.VK_ENTER:
-                controlador.setStart(true);
+                controlador.left();
                 break;
             
             case KeyEvent.VK_W:
-                controlador.setUp(true);
+                controlador.up();
                 break;
             case KeyEvent.VK_S:
-                controlador.setDown(true);
+                controlador.down();
                 break;
             case KeyEvent.VK_D:
-                controlador.setRight(true);
+                controlador.right();
                 break;
             case KeyEvent.VK_A:
-                controlador.setLeft(true);
+                controlador.left();
                 break;
             default:
                 break;
@@ -222,41 +189,7 @@ public class Painel extends JPanel implements Runnable, KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        int k = e.getKeyCode();
         
-        switch(k){
-            case KeyEvent.VK_UP:
-                controlador.setUp(false);
-                break;
-            case KeyEvent.VK_DOWN:
-                controlador.setDown(false);
-                break;
-            case KeyEvent.VK_RIGHT:
-                controlador.setRight(false);
-                break;
-            case KeyEvent.VK_LEFT:
-                controlador.setLeft(false);
-                break;
-            
-            case KeyEvent.VK_ENTER:
-                controlador.setStart(false);
-                break;
-            
-            case KeyEvent.VK_W:
-                controlador.setUp(false);
-                break;
-            case KeyEvent.VK_S:
-                controlador.setDown(false);
-                break;
-            case KeyEvent.VK_D:
-                controlador.setRight(false);
-                break;
-            case KeyEvent.VK_A:
-                controlador.setLeft(false);
-                break;
-            default:
-                break;
-        }
     }
     
 }

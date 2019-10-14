@@ -2,6 +2,10 @@ package model.send;
 
 public class Cobra extends EntidadePosicionavel{
     
+    public Cobra(){
+        
+    }
+    
     public Cobra(char pos, int altura, int largura, int tamanho){
         if(pos == 'e'){
             insertPosicao((largura/4)-tamanho, (altura/2)-tamanho);           

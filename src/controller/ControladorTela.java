@@ -3,8 +3,9 @@ package controller;
 import java.awt.Component;
 import java.util.HashMap;
 import javax.swing.JFrame;
+import localizacoes.ILocal;
 
-public class ControladorTela {
+public class ControladorTela implements ILocal{
     protected JFrame tela;
     protected HashMap mapaDeComponentes;
     protected GerenciadorDeTelas gerenciador;

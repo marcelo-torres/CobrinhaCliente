@@ -14,8 +14,6 @@ public class ControladorTelaJogo extends ControladorTela{
     Arena arena;
     Painel painel;
     
-    // Ações
-    private boolean up, down, right, left, start;
     private boolean gameover;
     
     public ControladorTelaJogo(GerenciadorDeTelas grc) {
@@ -35,8 +33,13 @@ public class ControladorTelaJogo extends ControladorTela{
         arena = new Arena(500, 1000, 10);
         
         painel = new Painel(arena, this);
+        
+        painel.iniciarPainel();
+        
+        iniciarJogo();
+        
         jpGame.add(painel);
-        ((JLabel)getComponente("lbl_nome")).setText("Olá, " + gerenciador.jogador.getNome());
+        ((JLabel)getComponente("lbl_nome")).setText("Olá, " + gerenciador.controlador.getNomeJogador());
         
         Iterator it = mapaDeComponentes.values().iterator();
         
@@ -58,60 +61,36 @@ public class ControladorTelaJogo extends ControladorTela{
     
     public void iniciarJogo() {
         gameover = false;
-        painel.setFPS(10);
         painel.atualizaPainel();
     }
     
-    public void update(){
-        if(gameover){
-            return;
-        }
-        int comando = 0;
-        if(up){
-            comando = 1;
-        }
-        
-        if(down){
-            comando = 2;
-        }
-        
-        if(left && !up && !down){
-            comando = 3;
-        }
-        
-        if(right && !up && !down){
-            comando = 4;
-        }
-        
-        painel.atualizaPainel();
-        
+    public void perdeu(){
+        gameover = true;
+        painel.escreverMensagemDerrota();
     }
     
-    public void setArena(Arena ar){
-        arena = ar;
+    public void up(){
+        gerenciador.controlador.cima();
     }
     
-    public void setStart(boolean b){
-        start = b;
+    public void down(){
+        gerenciador.controlador.baixo();
     }
     
-    public void setUp(boolean b){
-        up = b;
+    public void left(){
+        gerenciador.controlador.esquerda();
     }
     
-    public void setDown(boolean b){
-        down = b;
-    }
-    
-    public void setLeft(boolean b){
-        left = b;
-    }
-    
-    public void setRight(boolean b){
-        right = b;
+    public void right(){
+        gerenciador.controlador.direita();
     }
     
     public boolean isGameOver(){
         return gameover;
+    }
+
+    public void novoQuadro(Arena arena) {
+        this.arena = arena;
+        painel.atualizaPainel();
     }
 }

@@ -5,7 +5,6 @@ import static Logger.Logger.Tipo.ERRO;
 import model.agentes.ControladorDePartida;
 import java.net.InetAddress;
 import java.util.LinkedList;
-import localizacoes.Local;
 import stub.comando.Comando;
 import stub.comando.ComandoExibirMensagem;
 import stub.comando.controlador_de_partida.AdversarioSaiu;
@@ -17,6 +16,7 @@ import stub.comando.gerenciador_de_udp.FecharConexaoUDP;
 import stub.comando.gerenciador_de_udp.IniciarFechamentoConexaoUDP;
 import stub.comando.gerenciador_de_udp.IniciarPedidoDeAberturaUDP;
 import stub.comunicacao.Comunicador;
+import localizacoes.ILocal;
 
 /**
  * Eh o Stub do cliente. Responsavel por esconder da aplicacao que a implementacao
@@ -135,12 +135,12 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     }
 
     @Override
-    public Local getLocalAtual() {
+    public ILocal getLocalAtual() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setLocalAtual(Local local) {
+    public void setLocalAtual(ILocal local) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

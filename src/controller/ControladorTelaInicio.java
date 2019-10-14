@@ -16,13 +16,13 @@ public class ControladorTelaInicio extends ControladorTela{
         
         criarMapaDeComponentes();
         
-        ((JTextField)getComponente("txt_nome")).setText(gerenciador.jogador.getNome());
+        ((JTextField)getComponente("txt_nome")).setText(gerenciador.controlador.getNomeJogador());
         
         tela.setVisible(true);
     }
 
     public void finalizarTelaInicio(){
-        gerenciador.jogador.setNome(((JTextField)getComponente("txt_nome")).getText());
+        gerenciador.controlador.setNomeJogador(((JTextField)getComponente("txt_nome")).getText());
         gerenciador.exibirBusca();
         tela.setVisible(false);
         tela = null;

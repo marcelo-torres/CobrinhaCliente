@@ -1,21 +1,21 @@
 package controller;
 
-import model.Jogador;
+import localizacoes.ILocal;
+import model.send.Arena;
 
 public class GerenciadorDeTelas{
     ControladorTelaBusca ctr_busca;
     ControladorTelaJogo ctr_jogo;
     ControladorTelaInicio ctr_inicio;
     ControladorGeral controlador;
-    Jogador jogador;
-
-    public GerenciadorDeTelas(ControladorGeral ctr, Jogador jg){
+    ILocal atual;
+    
+    public GerenciadorDeTelas(ControladorGeral ctr){
         ctr_busca = new ControladorTelaBusca(this);
         ctr_jogo = new ControladorTelaJogo(this);
         ctr_inicio = new ControladorTelaInicio(this);
         ctr_inicio.inicializarTelaInicio();
         controlador = ctr;
-        jogador = jg;
     }
     
     public void exibirBusca(){
@@ -25,8 +25,14 @@ public class GerenciadorDeTelas{
     public void exibirJogo(){
         ctr_jogo.inicializarTelaJogo();
     }
-    
+
     public void exibirInicio(){
         ctr_inicio.inicializarTelaInicio();
+    }
+    
+    public void novoQuadro(Arena arena){
+        if(atual == ctr_jogo){
+            ctr_jogo.novoQuadro(arena);
+        }
     }
 }
