@@ -10,12 +10,7 @@ public class IrParaOHall extends ComandoControladorDePartida {
     }
     
     @Override
-    public void executar() {
+    public void executar(Parametros parametros) {
         super.CONTROLADOR_PARTIDA.irParaOHall();
-    }
-    
-    @Override
-    public void definirParametros(Parametros parametros) {
-       throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }

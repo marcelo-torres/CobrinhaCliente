@@ -10,12 +10,7 @@ public class VoceGanhou extends ComandoControladorDePartida {
     }
     
     @Override
-    public void executar() {
+    public void executar(Parametros parametros) {
         super.CONTROLADOR_PARTIDA.voceGanhou();
-    }
-    
-    @Override
-    public void definirParametros(Parametros parametros) {
-       throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }

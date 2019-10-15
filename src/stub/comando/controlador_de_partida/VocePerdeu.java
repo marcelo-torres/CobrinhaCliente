@@ -10,12 +10,7 @@ public class VocePerdeu extends ComandoControladorDePartida {
     }
     
     @Override
-    public void executar() {
+    public void executar(Parametros parametros) {
         super.CONTROLADOR_PARTIDA.vocerPerdeu();
-    }
- 
-    @Override
-    public void definirParametros(Parametros parametros) {
-       throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }
