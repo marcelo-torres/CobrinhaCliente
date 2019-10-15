@@ -17,6 +17,11 @@ import stub.comando.gerenciador_de_udp.IniciarFechamentoConexaoUDP;
 import stub.comando.gerenciador_de_udp.IniciarPedidoDeAberturaUDP;
 import stub.comunicacao.Comunicador;
 import localizacoes.ILocal;
+import stub.comando.controlador_de_partida.EntregarQuadroComando;
+import stub.comando.controlador_de_partida.FalhaAoLogar;
+import stub.comando.controlador_de_partida.IrParaOHall;
+import stub.comando.controlador_de_partida.Logar;
+import stub.comando.jogador.GetVD;
 
 /**
  * Eh o Stub do cliente. Responsavel por esconder da aplicacao que a implementacao
@@ -115,9 +120,13 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         
         LinkedList<Comando> listaDeComandos = new LinkedList<>();
         
-        listaDeComandos.add(new AdversarioSaiu("adversarioSaiu", CONTROLADOR_DE_PARTIDA));
-        listaDeComandos.add(new VoceGanhou("voceGanhou", CONTROLADOR_DE_PARTIDA));
-        listaDeComandos.add(new VocePerdeu("vocePerdeu", CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new AdversarioSaiu("adversarioSaiu", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new VoceGanhou("voceGanhou", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new VocePerdeu("vocePerdeu", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new IrParaOHall("irParaOHall", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new Logar("logar", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new FalhaAoLogar("falhaAoLogar", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new EntregarQuadroComando("entregarQuadro", this.CONTROLADOR_DE_PARTIDA));
         
         listaDeComandos.add(new ComandoExibirMensagem("exibirMensagem"));
         listaDeComandos.add(new AtenderPedidoInicioDeAberturaUDP("atenderPedidoInicioDeAberturaUDP", this.GERENCIADOR_CONEXAO_UDP));
