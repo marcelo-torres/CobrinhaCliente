@@ -11,12 +11,7 @@ public class FecharConexaoUDP extends ComandoGerenciadorDePartida {
     }
     
     @Override
-    public void executar() {
+    public void executar(Parametros parametros) {
         super.GERENCIADOR.fecharConexaoUDP();
-    }
-
-    @Override
-    public void definirParametros(Parametros parametros) {
-       throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }

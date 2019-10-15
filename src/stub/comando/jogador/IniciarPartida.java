@@ -10,12 +10,7 @@ public class IniciarPartida extends ComandoJogador {
     }
 
     @Override
-    public void executar() {
+    public void executar(Parametros parametros) {
         super.JOGADOR.iniciarPartida();
-    }
-    
-    @Override
-    public void definirParametros(Parametros parametros) {
-       throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }

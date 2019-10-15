@@ -12,16 +12,8 @@ public class ContinuarAberturaUDP extends ComandoGerenciadorDePartida {
     }
     
     @Override
-    public void executar() {
-        if(this.portaUDPServidor == null) {
-            throw new RuntimeException("Nao eh possivel executar o comando: numero da porta nao definido");
-        }
-        super.GERENCIADOR.continuarAberturaUDP(this.portaUDPServidor);
-    }
-    
-    @Override
-    public void definirParametros(Parametros parametros) {
+    public void executar(Parametros parametros) {
         ContinuarAberturaUDPParametros continuarAberturaUDPParametros = (ContinuarAberturaUDPParametros) parametros;
-        this.portaUDPServidor = continuarAberturaUDPParametros.getPortaUDPServidor();
+        super.GERENCIADOR.continuarAberturaUDP(continuarAberturaUDPParametros.getPortaUDPServidor());
     }
 }

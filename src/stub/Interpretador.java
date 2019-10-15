@@ -20,6 +20,9 @@ import com.google.gson.*;
 import stub.comando.ComandoExibirMensagem;
 import stub.comando.ComandoExibirMensagemParametros;
 import stub.comando.Parametros;
+import stub.comando.controlador_de_partida.EntregarQuadroParametro;
+import stub.comando.controlador_de_partida.FalhaAoLogarParametros;
+import stub.comando.controlador_de_partida.LogarParametros;
 import stub.comando.gerenciador_de_udp.AtenderPedidoInicioDeAberturaUDPParametros;
 import stub.comando.gerenciador_de_udp.ContinuarAberturaUDPParametros;
 
@@ -37,7 +40,7 @@ public class Interpretador {
     private final Charset CHARSET_PADRAO = Charset.forName("UTF-8");
     private final HashMap<String, Comando> COMANDOS = new HashMap<>();
     
-    private static class PacoteDeChamaRemota {
+    private static class PacoteDeChamaRemota implements Serializable {
     
         private String nomeDoMetodo;
         private Parametros parametros;
@@ -63,10 +66,12 @@ public class Interpretador {
     private byte[] empacotarChamadaDeMetodo(String metodo, Parametros parametros) {
         PacoteDeChamaRemota pacote = new PacoteDeChamaRemota(metodo, parametros);
         
-        Gson gson = new Gson();
-        String json = gson.toJson(pacote);
+        //Gson gson = new Gson();
+        //String json = gson.toJson(pacote);
         
-        return json.getBytes();
+        //return json.getBytes();
+        
+        return this.converterParaBytes(pacote);
     }
     
     /**
@@ -110,15 +115,16 @@ public class Interpretador {
      * @param mensagem Mensagem a ser interpretada
      */
     public void interpretar(byte[] mensagem) {
-        String mensagemTextual = new String(mensagem, this.CHARSET_PADRAO);
+        //String mensagemTextual = new String(mensagem, this.CHARSET_PADRAO);
         
-        Gson gson = new Gson();
-        PacoteDeChamaRemota pacoteDeChamadaRemota = gson.fromJson(mensagemTextual, PacoteDeChamaRemota.class);
+        //Gson gson = new Gson();
+        //PacoteDeChamaRemota pacoteDeChamadaRemota = gson.fromJson(mensagemTextual, PacoteDeChamaRemota.class);
+        
+        PacoteDeChamaRemota pacoteDeChamadaRemota = (PacoteDeChamaRemota) this.converterParaObjeto(mensagem);
         
         Comando comando = this.COMANDOS.get(pacoteDeChamadaRemota.getNomeDoMetodo());
         if(comando != null) {
-            comando.definirParametros(pacoteDeChamadaRemota.getParametros());
-            comando.executar();
+            comando.executar(pacoteDeChamadaRemota.getParametros());
         } else {
             throw new RuntimeException("Comando com a chave " + pacoteDeChamadaRemota.getNomeDoMetodo() + " nao encontrado");
         }
@@ -156,7 +162,7 @@ public class Interpretador {
     
     public byte[] codificarContinuarAberturaUDP(int portaUDPServidor) {
         ContinuarAberturaUDPParametros parametros = new ContinuarAberturaUDPParametros();
-       parametros.setPortaUDPServidor(portaUDPServidor);
+        parametros.setPortaUDPServidor(portaUDPServidor);
         byte[] mensagem = this.empacotarChamadaDeMetodo("continuarAberturaUDP", parametros);
         return mensagem;
     }
@@ -233,19 +239,24 @@ public class Interpretador {
     }
 
     public byte[] codificarLogar(String login) {
-        byte[] mensagem = this.empacotarChamadaDeMetodo("logar");
+        LogarParametros parametros = new LogarParametros();
+        parametros.setLogin(login);
+        byte[] mensagem = this.empacotarChamadaDeMetodo("logar", parametros);
         return mensagem;
     }
 
     public byte[] codificarFalhaAoLogar(String mensagemTextual) {
-        byte[] mensagem = this.empacotarChamadaDeMetodo("falhaAoLogar");
+        FalhaAoLogarParametros parametros = new FalhaAoLogarParametros();
+        parametros.setMensagem(mensagemTextual);
+        byte[] mensagem = this.empacotarChamadaDeMetodo("falhaAoLogar", parametros);
         return mensagem;
     }
     
     public byte[] codificarEntregarQuadro(Arena arena) {
-        byte[] bytes = this.converterParaBytes(arena);
-        //byte[] mensagem = this.empacotarChamadaDeMetodoComParametroObjeto("entregarQuadro", bytes);
-        return bytes;
+        EntregarQuadroParametro parametros = new EntregarQuadroParametro();
+        parametros.setArena(arena);
+        byte[] mensagem = this.empacotarChamadaDeMetodo("entregarQuadro", parametros);
+        return mensagem;
     }
     
     
@@ -256,22 +267,22 @@ public class Interpretador {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out = null;
         try {
-            out = new ObjectOutputStream(bos);   
+            out = new ObjectOutputStream(bos);
             out.writeObject(objeto);
             out.flush();
             byte[] yourBytes = bos.toByteArray();
             return yourBytes;
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             return null;
         } finally {
             try {
-              bos.close();
+                bos.close();
             } catch (IOException ex) {
-              // ignore close exception
+                // ignore close exception
             }
         }
     }
-    
+
     // Retirado de <https://stackoverflow.com/questions/2836646/java-serializable-object-to-byte-array>
     public Object converterParaObjeto(byte[] bytes) {
         ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
@@ -280,18 +291,18 @@ public class Interpretador {
             in = new ObjectInputStream(bis);
             Object objeto = in.readObject();
             return objeto;
-        } catch(IOException ioe) {
+        } catch (IOException ioe) {
             return null;
-        } catch(ClassNotFoundException cnfe) {
+        } catch (ClassNotFoundException cnfe) {
             return null;
-        }finally {
+        } finally {
             try {
-                if(in != null) {
+                if (in != null) {
                     in.close();
                 }
             } catch (IOException ex) {
-              // ignore close exception
-            } 
+                // ignore close exception
+            }
         }
     }
 }

@@ -10,12 +10,7 @@ public class IniciarPedidoDeAberturaUDP extends ComandoGerenciadorDePartida {
     }
 
     @Override
-    public void executar() {
+    public void executar(Parametros parametros) {
         super.GERENCIADOR.iniciarPedidoDeAberturaUDP();
-    }
-    
-    @Override
-    public void definirParametros(Parametros parametros) {
-       throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }

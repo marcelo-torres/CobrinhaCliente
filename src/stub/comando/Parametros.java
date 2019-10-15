@@ -1,5 +1,7 @@
 package stub.comando;
 
-public class Parametros {
+import java.io.Serializable;
+
+public class Parametros implements Serializable {
     
 }

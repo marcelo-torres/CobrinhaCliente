@@ -10,12 +10,7 @@ public class AndarParaBaixo extends ComandoJogador {
     }
 
     @Override
-    public void executar() {
+    public void executar(Parametros parametros) {
         super.JOGADOR.andarParaBaixo();
-    }
-
-    @Override
-    public void definirParametros(Parametros parametros) {
-       throw new UnsupportedOperationException("Nenhum parametro necessario");
     }
 }

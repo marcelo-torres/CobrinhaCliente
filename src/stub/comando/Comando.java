@@ -12,7 +12,5 @@ public abstract class Comando {
         return this.CODIGO;
     }
     
-    public abstract void executar();
-    
-    public abstract void definirParametros(Parametros parametros);
+    public abstract void executar(Parametros parametros);
 }
