@@ -21,6 +21,8 @@ import stub.comando.controlador_de_partida.EntregarQuadroComando;
 import stub.comando.controlador_de_partida.FalhaAoLogar;
 import stub.comando.controlador_de_partida.IrParaOHall;
 import stub.comando.controlador_de_partida.Logar;
+import stub.comando.jogador.GetLocalAtual;
+import stub.comando.jogador.GetVD;
 import stub.comunicacao.FilaMonitorada;
 
 /**
@@ -29,8 +31,8 @@ import stub.comunicacao.FilaMonitorada;
  */
 public class ControladorDeConexao extends Stub implements model.agentes.IJogador {
     
-    private final FilaMonitorada<Double> FILA_RETORNO_VD = new FilaMonitorada<>(100);
-    private final FilaMonitorada<ILocal> FILA_RETORNO_LOCAL_ATUAL = new FilaMonitorada<>(100);
+    private final FilaMonitorada FILA_RETORNO_VD = new FilaMonitorada(100);
+    private final FilaMonitorada FILA_RETORNO_LOCAL_ATUAL = new FilaMonitorada(100);
     
     private final ControladorDePartida CONTROLADOR_DE_PARTIDA;
     private final InetAddress ENDERECO_DO_SERVIDOR;
@@ -49,7 +51,13 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR);
         
         this.INTERPRETADOR.cadastrarComandos(this.criarComandosNecessarios());
+        this.registrarFilas();
         super.iniciar();
+    }
+    
+    private void registrarFilas() {
+        this.INTERPRETADOR.cadastrarFilaDeRetorno("getVD", this.FILA_RETORNO_VD);
+        this.INTERPRETADOR.cadastrarFilaDeRetorno("getLocalAtual", this.FILA_RETORNO_LOCAL_ATUAL);
     }
 
     @Override
@@ -117,27 +125,31 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
     }
     
+    
     @Override
     public double getVD() {
-        byte[] mensagem = this.INTERPRETADOR.codificarAndarParaDireita();
-        this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
+        byte[] mensagem = this.INTERPRETADOR.codificarGetVD();
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
         
         // aguarda o retorno
-        return this.FILA_RETORNO_VD.remover();
+        Double retorno = (Double) this.FILA_RETORNO_VD.remover();
+        return retorno;
     }
 
     @Override
     public ILocal getLocalAtual() {
-        byte[] mensagem = this.INTERPRETADOR.codificarAndarParaDireita();
-        this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
+        byte[] mensagem = this.INTERPRETADOR.codificarGetLocalAtual();
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
         
         // aguarda o retorno
-        return this.FILA_RETORNO_LOCAL_ATUAL.remover();
+        ILocal retorno = (ILocal) this.FILA_RETORNO_LOCAL_ATUAL.remover();
+        return retorno;
     }
 
     @Override
     public void setLocalAtual(ILocal local) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        byte[] mensagem = this.INTERPRETADOR.codificarSetLocalAtual(local);
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
     }
     
     @Override
@@ -161,5 +173,10 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         listaDeComandos.add(new IniciarPedidoDeAberturaUDP("iniciarPedidoDeAberturaUDP", this.GERENCIADOR_CONEXAO_UDP));
         
         return listaDeComandos;
+    }
+    
+    @Override
+    protected void devolverRetorno(byte[] mensagemRetorno) {
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagemRetorno);
     }
 }

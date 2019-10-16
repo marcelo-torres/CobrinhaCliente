@@ -3,6 +3,8 @@ package nucleo;
 import model.agentes.ControladorDePartida;
 import java.io.Closeable;
 import java.net.InetAddress;
+import localizacoes.Hall;
+import localizacoes.ILocal;
 import model.send.Arena;
 import stub.ControladorDeConexao;
 import model.agentes.IJogador;
@@ -23,56 +25,79 @@ public class ControladorCliente implements ControladorDePartida, Closeable {
     }
     
     public void executarSequenciaDeTestes() {
-        this.JOGADOR.iniciarPartida();
-        this.JOGADOR.andarParaCima();
-        this.JOGADOR.andarParaBaixo();
+        if(true) {
+            this.JOGADOR.iniciarPartida();
+            this.JOGADOR.desistirDeProcurarPartida();
+            
+            this.JOGADOR.iniciarPartida();
+            this.JOGADOR.andarParaCima();
+            this.JOGADOR.andarParaBaixo();
+            this.JOGADOR.andarParaEsquerda();
+            this.JOGADOR.andarParaDireita();
+
+            //try {new Thread().sleep(300);} catch(Exception e) {}
+
+            this.JOGADOR.encerrarPartida();
+
+            //try {new Thread().sleep(300);} catch(Exception e) {}
+
+            this.JOGADOR.iniciarPartida();
+
+            this.JOGADOR.andarParaCima();
+            this.JOGADOR.andarParaBaixo();
+            this.JOGADOR.andarParaEsquerda();
+            this.JOGADOR.andarParaDireita();
+            
+            double valorRecebido = this.JOGADOR.getVD();
+        System.out.println("ControladorDeCliente: valor recebido: " + valorRecebido);
+     
+        ILocal local = this.JOGADOR.getLocalAtual();
+        System.out.println("ControladorDeCliente: valor recebido: " + local);
         
-        try {new Thread().sleep(3000);} catch(Exception e) {}
+        local = new Hall();
+        System.out.println("ControladorDeCliente: enviando: " + local);
+        this.JOGADOR.setLocalAtual(local);
+        }
         
-        this.JOGADOR.encerrarPartida();
         
-        try {new Thread().sleep(3000);} catch(Exception e) {}
         
-        this.JOGADOR.iniciarPartida();
-        this.JOGADOR.andarParaEsquerda();
-        this.JOGADOR.andarParaDireita();
+        
+        
     }
 
     @Override
     public void vocerPerdeu() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("    === TESTE CLIENTE === Chamada recebida do servidor: vocerPerdeu");
     }
 
     @Override
     public void voceGanhou() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         System.out.println("    === TESTE CLIENTE === Chamada recebida do servidor: voceGanhou");
     }
 
     @Override
     public void adversarioSaiu() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       System.out.println("    === TESTE CLIENTE === Chamada recebida do servidor: adversarioSaiu");
     }
 
     @Override
     public void irParaOHall() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("    === TESTE CLIENTE === Chamada recebida do servidor: irParaOHall");
     }
 
     @Override
     public void logar(String login) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("    === TESTE CLIENTE === Chamada recebida do servidor: logar -> retornando o valor: " + login);
     }
 
     @Override
     public void falhaAoLogar(String mensagem) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       System.out.println("    === TESTE CLIENTE === Chamada recebida do servidor: falhaAoLogar -> retornando o valor: " + mensagem);
     }
 
     @Override
     public void entregarQuadro(Arena arena) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("    === TESTE CLIENTE === Chamada recebida do servidor: entregarQuadro -> retornando o valor: " + arena);
     }
-    
-
-    
+   
 }
