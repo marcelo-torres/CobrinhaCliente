@@ -5,7 +5,6 @@ import static Logger.Logger.Tipo.ERRO;
 import model.agentes.ControladorDePartida;
 import java.net.InetAddress;
 import java.util.LinkedList;
-import stub.comando.Comando;
 import stub.comando.ComandoExibirMensagem;
 import stub.comando.controlador_de_partida.AdversarioSaiu;
 import stub.comando.controlador_de_partida.VoceGanhou;
@@ -17,17 +16,21 @@ import stub.comando.gerenciador_de_udp.IniciarFechamentoConexaoUDP;
 import stub.comando.gerenciador_de_udp.IniciarPedidoDeAberturaUDP;
 import stub.comunicacao.Comunicador;
 import localizacoes.ILocal;
+import stub.comando.Comando;
 import stub.comando.controlador_de_partida.EntregarQuadroComando;
 import stub.comando.controlador_de_partida.FalhaAoLogar;
 import stub.comando.controlador_de_partida.IrParaOHall;
 import stub.comando.controlador_de_partida.Logar;
-import stub.comando.jogador.GetVD;
+import stub.comunicacao.FilaMonitorada;
 
 /**
  * Eh o Stub do cliente. Responsavel por esconder da aplicacao que a implementacao
  * real do objeto Jogador esta em outra maquina.
  */
 public class ControladorDeConexao extends Stub implements model.agentes.IJogador {
+    
+    private final FilaMonitorada<Double> FILA_RETORNO_VD = new FilaMonitorada<>(100);
+    private final FilaMonitorada<ILocal> FILA_RETORNO_LOCAL_ATUAL = new FilaMonitorada<>(100);
     
     private final ControladorDePartida CONTROLADOR_DE_PARTIDA;
     private final InetAddress ENDERECO_DO_SERVIDOR;
@@ -46,7 +49,6 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR);
         
         this.INTERPRETADOR.cadastrarComandos(this.criarComandosNecessarios());
-        
         super.iniciar();
     }
 
@@ -116,6 +118,29 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     }
     
     @Override
+    public double getVD() {
+        byte[] mensagem = this.INTERPRETADOR.codificarAndarParaDireita();
+        this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
+        
+        // aguarda o retorno
+        return this.FILA_RETORNO_VD.remover();
+    }
+
+    @Override
+    public ILocal getLocalAtual() {
+        byte[] mensagem = this.INTERPRETADOR.codificarAndarParaDireita();
+        this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
+        
+        // aguarda o retorno
+        return this.FILA_RETORNO_LOCAL_ATUAL.remover();
+    }
+
+    @Override
+    public void setLocalAtual(ILocal local) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
     protected LinkedList<Comando> criarComandosNecessarios() {
         
         LinkedList<Comando> listaDeComandos = new LinkedList<>();
@@ -136,20 +161,5 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         listaDeComandos.add(new IniciarPedidoDeAberturaUDP("iniciarPedidoDeAberturaUDP", this.GERENCIADOR_CONEXAO_UDP));
         
         return listaDeComandos;
-    }
-
-    @Override
-    public double getVD() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public ILocal getLocalAtual() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setLocalAtual(ILocal local) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
