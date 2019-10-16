@@ -21,10 +21,15 @@ public class ControladorTelaInicio extends ControladorTela{
         tela.setVisible(true);
     }
 
-    public void finalizarTelaInicio(){
+    public void enviarNome(){
         gerenciador.controlador.setNomeJogador(((JTextField)getComponente("txt_nome")).getText());
-        gerenciador.exibirBusca();
+    }
+    
+    public void desativaTela(){
         tela.setVisible(false);
         tela = null;
     }
+    
+    
+    
 }

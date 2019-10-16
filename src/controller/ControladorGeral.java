@@ -36,9 +36,21 @@ public class ControladorGeral {
     
     public void setNomeJogador(String nome_jogador) {
         this.nomeJogador = nome_jogador;
+        jogador.setNomeJogador(nome_jogador);
+        
     }
 
     public String getNomeJogador() {
         return nomeJogador;
+    }
+    
+    public void exibirJogo(){
+        gerenciador.exibirJogo();
+        gerenciador.ctr_busca.desativaTela();
+    }
+    
+    public void exibirBusca(){
+        gerenciador.exibirBusca();
+        gerenciador.ctr_inicio.desativaTela();
     }
 }

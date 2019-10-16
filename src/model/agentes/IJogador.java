@@ -15,6 +15,6 @@ public interface IJogador{
     public void andarParaDireita();
     
     
-	
+    public void setNomeJogador(String nome_jogador);
 
 }
