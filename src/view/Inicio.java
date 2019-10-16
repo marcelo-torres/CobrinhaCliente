@@ -94,12 +94,12 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_iniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_iniciarActionPerformed
-        controlador.finalizarTelaInicio();
+        controlador.enviarNome();
     }//GEN-LAST:event_btn_iniciarActionPerformed
 
     private void txt_nomeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nomeKeyPressed
         if(evt.getKeyCode() == KeyEvent.VK_ENTER)
-            controlador.finalizarTelaInicio();
+            controlador.enviarNome();
     }//GEN-LAST:event_txt_nomeKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

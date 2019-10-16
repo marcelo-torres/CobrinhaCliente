@@ -27,17 +27,8 @@ public class ControladorTelaBusca extends ControladorTela{
         tela.setVisible(true);
     }
     
-    public void finalizarTelaBusca(){
-        new java.util.Timer().schedule( 
-            new java.util.TimerTask() {
-                @Override
-                public void run() {
-                    gerenciador.exibirJogo();
-                    tela.setVisible(false);
-                    tela = null;
-                }
-            }, 
-            3000 
-        );
+    public void desativaTela(){
+        tela.setVisible(false);
+        tela = null;
     }
 }
