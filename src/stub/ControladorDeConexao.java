@@ -126,7 +126,7 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     }
     
     
-    @Override
+    /*@Override
     public double getVD() {
         byte[] mensagem = this.INTERPRETADOR.codificarGetVD();
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
@@ -150,7 +150,7 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     public void setLocalAtual(ILocal local) {
         byte[] mensagem = this.INTERPRETADOR.codificarSetLocalAtual(local);
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
-    }
+    }*/
     
     @Override
     protected LinkedList<Comando> criarComandosNecessarios() {

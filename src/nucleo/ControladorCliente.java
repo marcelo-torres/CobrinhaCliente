@@ -11,7 +11,7 @@ import model.agentes.IJogador;
 
 public class ControladorCliente implements ControladorDePartida, Closeable {
 
-    private final IJogador JOGADOR;
+    private final ControladorDeConexao JOGADOR;
     
     public ControladorCliente(
             InetAddress enderecoDoServidor,
@@ -48,7 +48,8 @@ public class ControladorCliente implements ControladorDePartida, Closeable {
             this.JOGADOR.andarParaEsquerda();
             this.JOGADOR.andarParaDireita();
             
-            double valorRecebido = this.JOGADOR.getVD();
+            this.JOGADOR.encerrarPartida();
+            /*double valorRecebido = this.JOGADOR.getVD();
             System.out.println("ControladorDeCliente: valor recebido: " + valorRecebido);
 
             ILocal local = this.JOGADOR.getLocalAtual();
@@ -56,7 +57,7 @@ public class ControladorCliente implements ControladorDePartida, Closeable {
 
             local = new Hall();
             System.out.println("ControladorDeCliente: enviando: " + local);
-            this.JOGADOR.setLocalAtual(local);
+            this.JOGADOR.setLocalAtual(local);*/
         }
         
         
