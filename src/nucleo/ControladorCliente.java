@@ -49,14 +49,14 @@ public class ControladorCliente implements ControladorDePartida, Closeable {
             this.JOGADOR.andarParaDireita();
             
             double valorRecebido = this.JOGADOR.getVD();
-        System.out.println("ControladorDeCliente: valor recebido: " + valorRecebido);
-     
-        ILocal local = this.JOGADOR.getLocalAtual();
-        System.out.println("ControladorDeCliente: valor recebido: " + local);
-        
-        local = new Hall();
-        System.out.println("ControladorDeCliente: enviando: " + local);
-        this.JOGADOR.setLocalAtual(local);
+            System.out.println("ControladorDeCliente: valor recebido: " + valorRecebido);
+
+            ILocal local = this.JOGADOR.getLocalAtual();
+            System.out.println("ControladorDeCliente: valor recebido: " + local);
+
+            local = new Hall();
+            System.out.println("ControladorDeCliente: enviando: " + local);
+            this.JOGADOR.setLocalAtual(local);
         }
         
         
