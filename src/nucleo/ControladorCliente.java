@@ -21,6 +21,7 @@ public class ControladorCliente implements ControladorDePartida, Closeable {
     
     @Override
     public void close() {
+       try {new Thread().sleep(1000);} catch(Exception e) {}
         this.JOGADOR.close();
     }
     
