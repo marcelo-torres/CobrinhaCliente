@@ -8,7 +8,6 @@ public class Busca extends javax.swing.JFrame {
     public Busca(ControladorTelaBusca ctr) {
         initComponents();
         controlador = ctr;
-        controlador.;
     }
     
     /**

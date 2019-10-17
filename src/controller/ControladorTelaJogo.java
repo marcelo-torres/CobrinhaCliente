@@ -14,10 +14,11 @@ public class ControladorTelaJogo extends ControladorTela{
     Arena arena;
     Painel painel;
     
-    private boolean gameover;
+    private boolean gameover, started;
     
     public ControladorTelaJogo(GerenciadorDeTelas grc) {
         gerenciador = grc;
+        started = false;
     }
     
     public void inicializarTelaJogo(){
@@ -51,10 +52,12 @@ public class ControladorTelaJogo extends ControladorTela{
         tela.pack();
         
         tela.setVisible(true);
+        
+        started = true;
+        
     }
     
-    public void finalizarTelaJogo(){
-        gerenciador.exibirInicio();
+    public void desativaTela(){
         tela.setVisible(false);
         tela = null;
     }
@@ -88,8 +91,13 @@ public class ControladorTelaJogo extends ControladorTela{
     public boolean isGameOver(){
         return gameover;
     }
+    
+    public boolean isStarted(){
+        return started;
+    }
 
     public void novoQuadro(Arena arena) {
+        if(!started) return;
         this.arena = arena;
         painel.atualizaPainel();
     }
