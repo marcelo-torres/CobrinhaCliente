@@ -35,7 +35,7 @@ public class Jogo extends javax.swing.JFrame {
         setTitle("Snake - Partida");
 
         btn_desistir.setFont(new java.awt.Font("Consolas", 0, 24)); // NOI18N
-        btn_desistir.setText("Desistir");
+        btn_desistir.setText("Sair");
         btn_desistir.setName("btn_desistir"); // NOI18N
         btn_desistir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

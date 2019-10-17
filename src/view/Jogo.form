@@ -85,7 +85,7 @@
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Consolas" size="24" style="0"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Desistir"/>
+        <Property name="text" type="java.lang.String" value="Sair"/>
         <Property name="name" type="java.lang.String" value="btn_desistir" noResource="true"/>
       </Properties>
       <Events>
