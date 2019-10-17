@@ -37,7 +37,6 @@ public class ControladorGeral {
     public void setNomeJogador(String nome_jogador) {
         this.nomeJogador = nome_jogador;
         jogador.setNomeJogador(nome_jogador);
-        
     }
 
     public String getNomeJogador() {
