@@ -57,8 +57,7 @@ public class ControladorTelaJogo extends ControladorTela{
         
     }
     
-    public void finalizarTelaJogo(){
-        gerenciador.exibirInicio();
+    public void desativaTela(){
         tela.setVisible(false);
         tela = null;
     }

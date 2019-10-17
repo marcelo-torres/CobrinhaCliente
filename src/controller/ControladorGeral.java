@@ -53,4 +53,9 @@ public class ControladorGeral {
         gerenciador.exibirBusca();
         gerenciador.ctr_inicio.desativaTela();
     }
+    
+    public void exibirInicio(){
+        gerenciador.exibirInicio();
+        gerenciador.ctr_jogo.desativaTela();
+    }
 }
