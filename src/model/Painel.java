@@ -152,9 +152,9 @@ public class Painel extends JPanel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if(controlador.isGameOver() || !controlador.isStarted()) return;
+
         int k = e.getKeyCode();
-        
-        if(controlador.isGameOver()) return;
         
         switch(k){
             case KeyEvent.VK_UP:
