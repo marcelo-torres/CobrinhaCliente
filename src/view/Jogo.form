@@ -28,26 +28,22 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jpn_game" min="-2" max="-2" attributes="0"/>
               <EmptySpace pref="27" max="32767" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="1" groupAlignment="0" max="-2" attributes="0">
-                      <Group type="102" alignment="1" attributes="0">
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="btn_frente" min="-2" pref="55" max="-2" attributes="0"/>
-                              <Group type="102" attributes="0">
-                                  <Component id="btn_esquerda" min="-2" pref="55" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="btn_tras" min="-2" pref="55" max="-2" attributes="0"/>
-                              </Group>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="btn_frente" min="-2" pref="55" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="btn_esquerda" min="-2" pref="55" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="btn_tras" min="-2" pref="55" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="btn_direita" min="-2" pref="55" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="btn_desistir" alignment="1" max="32767" attributes="0"/>
-                      <Component id="lbl_titulo" max="32767" attributes="0"/>
-                      <Component id="lbl_nome" alignment="1" max="32767" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="btn_direita" min="-2" pref="55" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="btn_jogar" alignment="1" min="-2" pref="183" max="-2" attributes="0"/>
-                  <Component id="btn_sair" alignment="1" min="-2" pref="185" max="-2" attributes="0"/>
+                  <Component id="btn_desistir" alignment="1" max="32767" attributes="0"/>
+                  <Component id="lbl_titulo" max="32767" attributes="0"/>
+                  <Component id="lbl_nome" alignment="1" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -65,14 +61,10 @@
                   <Group type="102" attributes="0">
                       <Component id="lbl_titulo" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="lbl_nome" min="-2" max="-2" attributes="0"/>
+                      <Component id="lbl_nome" min="-2" pref="129" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btn_desistir" min="-2" pref="104" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
-                      <Component id="btn_jogar" min="-2" pref="66" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="btn_sair" min="-2" pref="66" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="btn_desistir" min="-2" pref="66" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="btn_frente" min="-2" pref="55" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -88,15 +80,6 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JButton" name="btn_jogar">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Consolas" size="24" style="0"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Continuar"/>
-        <Property name="name" type="java.lang.String" value="btn_jogar" noResource="true"/>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JButton" name="btn_desistir">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -105,17 +88,8 @@
         <Property name="text" type="java.lang.String" value="Desistir"/>
         <Property name="name" type="java.lang.String" value="btn_desistir" noResource="true"/>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JButton" name="btn_sair">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Consolas" size="24" style="0"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Sair"/>
-        <Property name="name" type="java.lang.String" value="btn_sair" noResource="true"/>
-      </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_sairActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_desistirActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btn_frente">
@@ -128,6 +102,9 @@
         <Property name="horizontalTextPosition" type="int" value="0"/>
         <Property name="name" type="java.lang.String" value="btn_frente" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_frenteActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btn_tras">
       <Properties>
@@ -139,6 +116,9 @@
         <Property name="horizontalTextPosition" type="int" value="0"/>
         <Property name="name" type="java.lang.String" value="btn_tras" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_trasActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btn_direita">
       <Properties>
@@ -150,6 +130,9 @@
         <Property name="horizontalTextPosition" type="int" value="0"/>
         <Property name="name" type="java.lang.String" value="btn_direita" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_direitaActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btn_esquerda">
       <Properties>
@@ -161,6 +144,9 @@
         <Property name="horizontalTextPosition" type="int" value="0"/>
         <Property name="name" type="java.lang.String" value="btn_esquerda" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_esquerdaActionPerformed"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JPanel" name="jpn_game">
       <Properties>
@@ -195,7 +181,7 @@
     <Component class="javax.swing.JLabel" name="lbl_nome">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Consolas" size="20" style="0"/>
+          <Font name="Consolas" size="24" style="0"/>
         </Property>
         <Property name="horizontalAlignment" type="int" value="0"/>
         <Property name="text" type="java.lang.String" value="Ol&#xe1;, jogador!"/>

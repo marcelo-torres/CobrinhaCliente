@@ -5,8 +5,11 @@ import java.awt.event.KeyEvent;
 
 public class Inicio extends javax.swing.JFrame {
     ControladorTelaInicio controlador;
-
+    private Boolean botaoApertado;
+    private final Object lockerObject = new Object();
+    
     public Inicio(ControladorTelaInicio ctr) {
+        botaoApertado = false;
         initComponents();
         controlador = ctr;
         
@@ -94,12 +97,23 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_iniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_iniciarActionPerformed
-        controlador.enviarNome();
+        synchronized(lockerObject){
+            if(!botaoApertado){
+                botaoApertado = true;
+                controlador.enviarNome();
+            }
+        }
     }//GEN-LAST:event_btn_iniciarActionPerformed
 
     private void txt_nomeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_nomeKeyPressed
-        if(evt.getKeyCode() == KeyEvent.VK_ENTER)
-            controlador.enviarNome();
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER){
+            synchronized(lockerObject){
+                if(!botaoApertado){
+                    botaoApertado = true;
+                    controlador.enviarNome();
+                }
+            }
+        }
     }//GEN-LAST:event_txt_nomeKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

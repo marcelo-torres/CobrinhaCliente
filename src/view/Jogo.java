@@ -4,10 +4,13 @@ import controller.ControladorTelaJogo;
 
 public class Jogo extends javax.swing.JFrame {
     ControladorTelaJogo controlador;
+    private Boolean botaoApertado;
+    private final Object lockerObject = new Object();
     
     public Jogo(ControladorTelaJogo ctr) {
+        botaoApertado = false;
         initComponents();
-        controlador = ctr;
+        controlador = ctr; 
     }
 
     /**
@@ -19,9 +22,7 @@ public class Jogo extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        btn_jogar = new javax.swing.JButton();
         btn_desistir = new javax.swing.JButton();
-        btn_sair = new javax.swing.JButton();
         btn_frente = new javax.swing.JButton();
         btn_tras = new javax.swing.JButton();
         btn_direita = new javax.swing.JButton();
@@ -33,20 +34,12 @@ public class Jogo extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Snake - Partida");
 
-        btn_jogar.setFont(new java.awt.Font("Consolas", 0, 24)); // NOI18N
-        btn_jogar.setText("Continuar");
-        btn_jogar.setName("btn_jogar"); // NOI18N
-
         btn_desistir.setFont(new java.awt.Font("Consolas", 0, 24)); // NOI18N
         btn_desistir.setText("Desistir");
         btn_desistir.setName("btn_desistir"); // NOI18N
-
-        btn_sair.setFont(new java.awt.Font("Consolas", 0, 24)); // NOI18N
-        btn_sair.setText("Sair");
-        btn_sair.setName("btn_sair"); // NOI18N
-        btn_sair.addActionListener(new java.awt.event.ActionListener() {
+        btn_desistir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_sairActionPerformed(evt);
+                btn_desistirActionPerformed(evt);
             }
         });
 
@@ -55,24 +48,44 @@ public class Jogo extends javax.swing.JFrame {
         btn_frente.setAlignmentY(0.0F);
         btn_frente.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btn_frente.setName("btn_frente"); // NOI18N
+        btn_frente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_frenteActionPerformed(evt);
+            }
+        });
 
         btn_tras.setFont(new java.awt.Font("Consolas", 0, 36)); // NOI18N
         btn_tras.setText("↓");
         btn_tras.setAlignmentY(0.0F);
         btn_tras.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btn_tras.setName("btn_tras"); // NOI18N
+        btn_tras.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_trasActionPerformed(evt);
+            }
+        });
 
         btn_direita.setFont(new java.awt.Font("Consolas", 0, 36)); // NOI18N
         btn_direita.setText("→");
         btn_direita.setAlignmentY(0.0F);
         btn_direita.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btn_direita.setName("btn_direita"); // NOI18N
+        btn_direita.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_direitaActionPerformed(evt);
+            }
+        });
 
         btn_esquerda.setFont(new java.awt.Font("Consolas", 0, 36)); // NOI18N
         btn_esquerda.setText("←");
         btn_esquerda.setAlignmentY(0.0F);
         btn_esquerda.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btn_esquerda.setName("btn_esquerda"); // NOI18N
+        btn_esquerda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_esquerdaActionPerformed(evt);
+            }
+        });
 
         jpn_game.setName("jpn_game"); // NOI18N
         jpn_game.setPreferredSize(new java.awt.Dimension(1000, 500));
@@ -92,7 +105,7 @@ public class Jogo extends javax.swing.JFrame {
         lbl_titulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbl_titulo.setText("Snake");
 
-        lbl_nome.setFont(new java.awt.Font("Consolas", 0, 20)); // NOI18N
+        lbl_nome.setFont(new java.awt.Font("Consolas", 0, 24)); // NOI18N
         lbl_nome.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lbl_nome.setText("Olá, jogador!");
         lbl_nome.setName("lbl_nome"); // NOI18N
@@ -105,22 +118,19 @@ public class Jogo extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jpn_game, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(btn_frente, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(btn_esquerda, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(btn_tras, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(btn_direita, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(btn_desistir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbl_titulo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lbl_nome, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(btn_jogar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btn_sair, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btn_frente, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btn_esquerda, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btn_tras, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btn_direita, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btn_desistir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lbl_titulo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lbl_nome, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -134,14 +144,10 @@ public class Jogo extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lbl_titulo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lbl_nome)
+                        .addComponent(lbl_nome, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btn_desistir, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btn_jogar, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btn_sair, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btn_desistir, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
                         .addComponent(btn_frente, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -154,17 +160,36 @@ public class Jogo extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btn_sairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_sairActionPerformed
-        controlador.finalizarTelaJogo();
-    }//GEN-LAST:event_btn_sairActionPerformed
+    private void btn_desistirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_desistirActionPerformed
+        synchronized(lockerObject){
+            if(!botaoApertado){
+                botaoApertado = true;
+                controlador.desistir();
+            }
+        }
+    }//GEN-LAST:event_btn_desistirActionPerformed
+
+    private void btn_frenteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_frenteActionPerformed
+        controlador.up();
+    }//GEN-LAST:event_btn_frenteActionPerformed
+
+    private void btn_trasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_trasActionPerformed
+        controlador.down();
+    }//GEN-LAST:event_btn_trasActionPerformed
+
+    private void btn_esquerdaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_esquerdaActionPerformed
+        controlador.left();
+    }//GEN-LAST:event_btn_esquerdaActionPerformed
+
+    private void btn_direitaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_direitaActionPerformed
+        controlador.right();
+    }//GEN-LAST:event_btn_direitaActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_desistir;
     private javax.swing.JButton btn_direita;
     private javax.swing.JButton btn_esquerda;
     private javax.swing.JButton btn_frente;
-    private javax.swing.JButton btn_jogar;
-    private javax.swing.JButton btn_sair;
     private javax.swing.JButton btn_tras;
     private javax.swing.JPanel jpn_game;
     private javax.swing.JLabel lbl_nome;

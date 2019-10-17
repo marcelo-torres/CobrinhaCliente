@@ -67,6 +67,16 @@ public class ControladorTelaJogo extends ControladorTela{
         painel.atualizaPainel();
     }
     
+    public void ganhou(){
+        gameover = true;
+        painel.escreverMensagemVitoria();
+    }
+    
+    public void empatou(){
+        gameover = true;
+        painel.escreverMensagemEmpate();
+    }
+    
     public void perdeu(){
         gameover = true;
         painel.escreverMensagemDerrota();
@@ -86,6 +96,10 @@ public class ControladorTelaJogo extends ControladorTela{
     
     public void right(){
         gerenciador.controlador.direita();
+    }
+    
+    public void desistir(){
+        gerenciador.controlador.encerrarPartida();
     }
     
     public boolean isGameOver(){

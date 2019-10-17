@@ -142,8 +142,20 @@ public class Painel extends JPanel implements KeyListener {
     
     public void escreverMensagemDerrota(){
         g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
-        g2d.setColor(Color.RED);
-        g2d.drawString("Você foi derrotado! Bua bua bua :c" , 200, 200);
+        g2d.setColor(new Color(176, 28, 28));
+        g2d.drawString("Você foi derrotado! Bua bua bua :c\nClique no botão \"Sair\" para voltar à tela inicial e jogar novamente." , 200, 200);
+    }
+    
+    public void escreverMensagemVitoria() {
+        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+        g2d.setColor(new Color(76, 176, 56));
+        g2d.drawString("Temos um vencedor! Você é o bixão mesmo hein!\nClique no botão \"Sair\" para voltar à tela inicial e jogar novamente." , 200, 200);
+    }
+    
+    public void escreverMensagemEmpate() {
+        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+        g2d.setColor(new Color(126, 138, 118));
+        g2d.drawString("Empate! Nenhuma cobra foi a maioral.\nClique no botão \"Sair\" para voltar à tela inicial e jogar novamente." , 200, 200);
     }
 
     @Override

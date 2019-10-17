@@ -37,7 +37,6 @@ public class ControladorGeral {
     public void setNomeJogador(String nome_jogador) {
         this.nomeJogador = nome_jogador;
         jogador.setNomeJogador(nome_jogador);
-        
     }
 
     public String getNomeJogador() {
@@ -57,5 +56,9 @@ public class ControladorGeral {
     public void exibirInicio(){
         gerenciador.exibirInicio();
         gerenciador.ctr_jogo.desativaTela();
+    }
+    
+    public void encerrarPartida(){
+        jogador.encerrarPartida();
     }
 }
