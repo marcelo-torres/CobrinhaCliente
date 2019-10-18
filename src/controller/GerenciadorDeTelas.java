@@ -7,6 +7,7 @@ public class GerenciadorDeTelas{
     ControladorTelaBusca ctr_busca;
     ControladorTelaJogo ctr_jogo;
     ControladorTelaInicio ctr_inicio;
+    ControladorTelaSessao ctr_sessao;
     ControladorGeral controlador;
     ILocal atual;
     
@@ -14,8 +15,13 @@ public class GerenciadorDeTelas{
         ctr_busca = new ControladorTelaBusca(this);
         ctr_jogo = new ControladorTelaJogo(this);
         ctr_inicio = new ControladorTelaInicio(this);
+        ctr_sessao = new ControladorTelaSessao(this);
         ctr_inicio.inicializarTelaInicio();
         controlador = ctr;
+    }
+    
+    public void exibirSessao(){
+        ctr_sessao.inicializarTelaSessao();
     }
     
     public void exibirBusca(){

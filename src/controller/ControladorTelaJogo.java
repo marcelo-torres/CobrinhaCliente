@@ -98,7 +98,7 @@ public class ControladorTelaJogo extends ControladorTela{
         gerenciador.controlador.direita();
     }
     
-    public void desistir(){
+    public void encerrar(){
         gerenciador.controlador.encerrarPartida();
     }
     

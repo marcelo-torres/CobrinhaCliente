@@ -34,31 +34,50 @@ public class ControladorGeral {
         jogador.andarParaDireita();
     }
     
-    public void setNomeJogador(String nome_jogador) {
+    public void iniciarSessao(String nome_jogador) {
         this.nomeJogador = nome_jogador;
-        jogador.setNomeJogador(nome_jogador);
+        jogador.iniciarSessao(nome_jogador);
     }
-
+    
+    public void encerrarSessao(){
+        jogador.encerrarSessao();
+    }
+    
     public String getNomeJogador() {
         return nomeJogador;
     }
     
-    public void exibirJogo(){
-        gerenciador.exibirJogo();
-        gerenciador.ctr_busca.desativaTela();
+    public void procurarPartida(){
+        jogador.iniciarPartida();
     }
     
-    public void exibirBusca(){
-        gerenciador.exibirBusca();
-        gerenciador.ctr_inicio.desativaTela();
-    }
-    
-    public void exibirInicio(){
-        gerenciador.exibirInicio();
-        gerenciador.ctr_jogo.desativaTela();
+    public void desistirDeProcurarPartida(){
+        jogador.desistirDeProcurarPartida();
     }
     
     public void encerrarPartida(){
         jogador.encerrarPartida();
+    }
+
+    public void exibirTelaSessao(){
+        gerenciador.exibirSessao();
+        gerenciador.ctr_inicio.desativaTela();
+    }
+
+    public void exibirTelaBusca(){
+        gerenciador.exibirBusca();
+        gerenciador.ctr_sessao.desativaTela();
+    }
+
+    
+    public void exibirTelaJogo(){
+        gerenciador.exibirJogo();
+        gerenciador.ctr_busca.desativaTela();
+    }
+    
+    
+    public void exibirTelaInicio(){
+        gerenciador.exibirInicio();
+        gerenciador.ctr_jogo.desativaTela();
     }
 }

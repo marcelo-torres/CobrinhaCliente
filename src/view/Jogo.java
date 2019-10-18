@@ -164,7 +164,7 @@ public class Jogo extends javax.swing.JFrame {
         synchronized(lockerObject){
             if(!botaoApertado){
                 botaoApertado = true;
-                controlador.desistir();
+                controlador.encerrar();
             }
         }
     }//GEN-LAST:event_btn_desistirActionPerformed

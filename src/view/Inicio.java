@@ -12,7 +12,6 @@ public class Inicio extends javax.swing.JFrame {
         botaoApertado = false;
         initComponents();
         controlador = ctr;
-        
     }
 
     /**
@@ -114,6 +113,8 @@ public class Inicio extends javax.swing.JFrame {
                 }
             }
         }
+        else if (txt_nome.getText().length() > 10 )
+            evt.consume(); 
     }//GEN-LAST:event_txt_nomeKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -27,6 +27,10 @@ public class ControladorTelaBusca extends ControladorTela{
         tela.setVisible(true);
     }
     
+    public void fecharPrograma(){
+        gerenciador.controlador.desistirDeProcurarPartida();
+    }
+    
     public void desativaTela(){
         tela.setVisible(false);
         tela = null;

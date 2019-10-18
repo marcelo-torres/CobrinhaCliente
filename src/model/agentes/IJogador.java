@@ -1,7 +1,9 @@
 package model.agentes;
 
-
 public interface IJogador{
+    
+    public void iniciarSessao(String nome_jogador);
+    public void encerrarSessao();
     
     public void iniciarPartida();
     public void desistirDeProcurarPartida();
@@ -12,9 +14,6 @@ public interface IJogador{
     public void andarParaEsquerda();
     public void andarParaDireita();
     
-    
-    public void setNomeJogador(String nome_jogador);
-
-    public void saindo();
+    public Double getVD();
 
 }

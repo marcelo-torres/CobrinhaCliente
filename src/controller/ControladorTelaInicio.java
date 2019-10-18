@@ -22,7 +22,7 @@ public class ControladorTelaInicio extends ControladorTela{
     }
 
     public void enviarNome(){
-        gerenciador.controlador.setNomeJogador(((JTextField)getComponente("txt_nome")).getText());
+        gerenciador.controlador.iniciarSessao(((JTextField)getComponente("txt_nome")).getText());
     }
     
     public void desativaTela(){
