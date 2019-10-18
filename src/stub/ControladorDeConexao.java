@@ -21,8 +21,6 @@ import stub.comando.controlador_de_partida.EntregarQuadroComando;
 import stub.comando.controlador_de_partida.FalhaAoLogar;
 import stub.comando.controlador_de_partida.IrParaOHall;
 import stub.comando.controlador_de_partida.Logar;
-import stub.comando.jogador.GetLocalAtual;
-import stub.comando.jogador.GetVD;
 import stub.comunicacao.FilaMonitorada;
 
 /**
@@ -178,5 +176,10 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     @Override
     protected void devolverRetorno(byte[] mensagemRetorno) {
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagemRetorno);
+    }
+
+    @Override
+    public void setNomeJogador(String nome_jogador) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

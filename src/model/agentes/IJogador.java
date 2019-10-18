@@ -1,7 +1,5 @@
 package model.agentes;
 
-import java.io.Closeable;
-import localizacoes.ILocal;
 
 public interface IJogador{
     
@@ -16,5 +14,7 @@ public interface IJogador{
     
     
     public void setNomeJogador(String nome_jogador);
+
+    public void saindo();
 
 }
