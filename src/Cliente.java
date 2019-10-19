@@ -1,28 +1,35 @@
+import controller.ControladorGeral;
 import java.io.Closeable;
 import stub.comunicacao.FalhaDeComunicacaoEmTempoRealException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import nucleo.ControladorCliente;
+import stub.ControladorDeConexao;
 
 public class Cliente implements Closeable {
     
     private final InetAddress ENDERECO_SERVIDOR;
     private final int PORTA_TCP_SERVIDOR;
 
-    private final ControladorCliente CONTROLADOR_CLIENTE;
+    private final ControladorGeral CONTROLADOR_CLIENTE;
+    private final ControladorDeConexao CONTROLADOR_DECONEXAO;
     
     
     public Cliente(InetAddress enderecoServidor, int portaTCPServidor) {
         this.ENDERECO_SERVIDOR = enderecoServidor;
         this.PORTA_TCP_SERVIDOR = portaTCPServidor;
         
-        this.CONTROLADOR_CLIENTE = new ControladorCliente(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
+        this.CONTROLADOR_DECONEXAO = new ControladorDeConexao(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
+        this.CONTROLADOR_CLIENTE = new ControladorGeral(CONTROLADOR_DECONEXAO);
+        CONTROLADOR_DECONEXAO.setControladorGeral(CONTROLADOR_CLIENTE);
+        
+        //this.CONTROLADOR_CLIENTE = new ControladorCliente(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
     }
     
     private void iniciar() {
         try {
-            this.CONTROLADOR_CLIENTE.executarSequenciaDeTestes();
-            
+            //this.CONTROLADOR_CLIENTE.executarSequenciaDeTestes();
+            System.out.println("Metodo iniciar acionado");
                 
         } catch(Exception e) {
             e.printStackTrace();
@@ -33,8 +40,8 @@ public class Cliente implements Closeable {
     
     @Override
     public void close() {
-        System.out.println("encerrando");
-        this.CONTROLADOR_CLIENTE.close();
+        System.out.println("encerrando, metodo close do cliente comentado, olhe la se der problema");
+        //this.CONTROLADOR_CLIENTE.close();
     }
     
     public static void main(String[] args) {

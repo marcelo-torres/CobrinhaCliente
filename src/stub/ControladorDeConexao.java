@@ -5,6 +5,7 @@ import static Logger.Logger.Tipo.ERRO;
 import model.agentes.ControladorDePartida;
 import java.net.InetAddress;
 import java.util.LinkedList;
+import model.agentes.IControladorGeralVisaoStubCliente;
 import stub.comando.ComandoExibirMensagem;
 import stub.comando.controlador_de_partida.AdversarioSaiu;
 import stub.comando.controlador_de_partida.VoceGanhou;
@@ -15,7 +16,6 @@ import stub.comando.gerenciador_de_udp.FecharConexaoUDP;
 import stub.comando.gerenciador_de_udp.IniciarFechamentoConexaoUDP;
 import stub.comando.gerenciador_de_udp.IniciarPedidoDeAberturaUDP;
 import stub.comunicacao.Comunicador;
-import localizacoes.ILocal;
 import stub.comando.Comando;
 import stub.comando.controlador_de_partida.EntregarQuadroComando;
 import stub.comando.controlador_de_partida.FalhaAoLogar;
@@ -27,30 +27,35 @@ import stub.comunicacao.FilaMonitorada;
  * Eh o Stub do cliente. Responsavel por esconder da aplicacao que a implementacao
  * real do objeto Jogador esta em outra maquina.
  */
-public class ControladorDeConexao extends Stub implements model.agentes.IJogador {
+public class ControladorDeConexao extends Stub implements model.agentes.IJogadorVisaoAplicacaoCliente {
     
     private final FilaMonitorada FILA_RETORNO_VD = new FilaMonitorada(100);
     private final FilaMonitorada FILA_RETORNO_LOCAL_ATUAL = new FilaMonitorada(100);
     
-    private final ControladorDePartida CONTROLADOR_DE_PARTIDA;
+    private  IControladorGeralVisaoStubCliente CONTROLADOR_DE_PARTIDA;
     private final InetAddress ENDERECO_DO_SERVIDOR;
     private final GerenciadorDeConexaoUDPRemota GERENCIADOR_CONEXAO_UDP;   
+    private IControladorGeralVisaoStubCliente controladorGeral;
     
     public ControladorDeConexao(
-            ControladorDePartida controladorDePartida,
+            
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor) {
         super(Comunicador.Modo.CLIENTE,
                 enderecoDoServidor,
                 portaTCPDoServidor);
         
-        this.CONTROLADOR_DE_PARTIDA = controladorDePartida;        
+               
         this.ENDERECO_DO_SERVIDOR = enderecoDoServidor;
         this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR);
         
         this.INTERPRETADOR.cadastrarComandos(this.criarComandosNecessarios());
         this.registrarFilas();
         super.iniciar();
+    }
+    
+    public void setControladorGeral(IControladorGeralVisaoStubCliente controladorDePartida){
+        this.controladorGeral = controladorDePartida;
     }
     
     private void registrarFilas() {
@@ -71,7 +76,7 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     /* ########################### CHAMADAS DE RPC ########################## */
     
     @Override
-    public void iniciarPartida() {  
+    public boolean iniciarPartida() {  
         byte[] mensagem = this.INTERPRETADOR.codificarIniciarPartida();
         System.out.println("VOU ATIVAR A PARTIDA");
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
@@ -83,20 +88,25 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         } catch (InterruptedException e) {
             Logger.registrar(ERRO, new String[]{"CONTROLADOR_DE_CONEXAO"}, "Espera no iniciarPartida() interrompida", e);
         }
+        return true;
     }
 
     @Override
-    public void desistirDeProcurarPartida() {
+    public boolean desistirDeProcurarPartida() {
         byte[] mensagem = this.INTERPRETADOR.codificarDesistirDeProcurarPartida();
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
         this.GERENCIADOR_CONEXAO_UDP.iniciarFechamentoConexaoUDP();
+        
+        return true;
     }
     
     @Override
-    public void encerrarPartida() {
+    public boolean encerrarPartida() {
         byte[] mensagem = this.INTERPRETADOR.codificarEncerrarPartida();
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
         this.GERENCIADOR_CONEXAO_UDP.iniciarFechamentoConexaoUDP();
+        
+        return true;
     }
 
     @Override
@@ -179,7 +189,14 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     }
 
     @Override
-    public void setNomeJogador(String nome_jogador) {
+    public void iniciarSessao(String nome_jogador) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public void encerrarSessao() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
 }

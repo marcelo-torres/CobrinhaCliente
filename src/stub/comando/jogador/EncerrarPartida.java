@@ -1,11 +1,11 @@
 package stub.comando.jogador;
 
-import model.agentes.IJogador;
 import stub.comando.Parametros;
+import model.agentes.IControladorGeralVisaoStubCliente;
 
 public class EncerrarPartida extends ComandoJogador {
     
-    public EncerrarPartida(String codigo, IJogador jogador) {
+    public EncerrarPartida(String codigo, IControladorGeralVisaoStubCliente jogador) {
         super(codigo, false, jogador);
     }
 
