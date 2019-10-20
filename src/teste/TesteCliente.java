@@ -28,7 +28,7 @@ public class TesteCliente {
         
         ControladorGeralTeste controladorGeral = new ControladorGeralTeste();
         ControladorDeConexao controladorDeConexao = new ControladorDeConexao(controladorGeral, enderecoServidor, portaTCPServidor);
-        //controladorDeConexao.setControladorGeral(controladorGeral);
+        controladorDeConexao.iniciarStub();
         
         controladorDeConexao.iniciarSessao("SESSAO_TESTE");
         controladorDeConexao.encerrarSessao();

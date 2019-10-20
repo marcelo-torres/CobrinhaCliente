@@ -42,12 +42,11 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         
         this.INTERPRETADOR.cadastrarComandos(this.criarComandosNecessarios());
         this.registrarFilas();
-        super.iniciar();
     }
     
-    /*public void setControladorGeral(IControladorGeralVisaoStubCliente controladorDePartida){
-        this.controladorGeral = controladorDePartida;
-    }*/
+    public void iniciarStub() {
+        super.iniciar();
+    }
     
     private void registrarFilas() {
         this.INTERPRETADOR.cadastrarFilaDeRetorno("iniciarPartida", this.FILA_RETORNO_INICIAR_PARTIDA);
