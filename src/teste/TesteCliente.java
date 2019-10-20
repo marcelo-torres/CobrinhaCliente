@@ -9,25 +9,33 @@ import stub.ControladorDeConexao;
 public class TesteCliente {
     
     public static void main(String[] args) {
-        teste();
+        System.out.println("iniciando");
+        String enderecoServidor = "127.0.0.1";
+        int portaServidor = 2573;
+        
+        if(args.length >= 2) {
+            enderecoServidor = args[0];
+            portaServidor = Integer.valueOf(args[1]);
+        }
+        
+        teste(enderecoServidor, portaServidor);
         
         /*for(int i = 0; i < 10; i++) {
-            new Thread(new Runnable() {public void run(){TesteCliente.teste();}}).start();
+            new Thread(new Runnable() {public void run(){TesteCliente.teste(enderecoServidor, portaServidor);}}).start();
         }*/
     }
     
-    public static void teste() {
+    public static void teste(String enderecoServ, int portaTCPServidor) {
     
         InetAddress enderecoServidor = null;
         try {
-            enderecoServidor = InetAddress.getByName("127.0.0.1");
+            enderecoServidor = InetAddress.getByName(enderecoServ);
         } catch(UnknownHostException uhe) {
             throw new RuntimeException("Erro: " + uhe.getMessage());
         }     
-        int portaTCPServidor = 2573;
         
         ControladorGeralTeste controladorGeral = new ControladorGeralTeste();
-        ControladorDeConexao controladorDeConexao = new ControladorDeConexao(controladorGeral, enderecoServidor, portaTCPServidor);
+        ControladorDeConexao controladorDeConexao = new ControladorDeConexao(controladorGeral, enderecoServidor, portaTCPServidor, 51311, 51320);
         controladorDeConexao.iniciarStub();
         
         controladorDeConexao.iniciarSessao("SESSAO_TESTE");

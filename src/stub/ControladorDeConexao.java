@@ -30,7 +30,9 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     public ControladorDeConexao(
             IControladorGeralVisaoStubCliente controladorDePartida,
             InetAddress enderecoDoServidor,
-            int portaTCPDoServidor) {
+            int portaTCPDoServidor,
+            int inicioIntervaloUDP,
+            int fimIntervaloUDP) {
         super(Comunicador.Modo.CLIENTE,
                 enderecoDoServidor,
                 portaTCPDoServidor);
@@ -38,7 +40,7 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         this.CONTROLADOR_DE_PARTIDA = controladorDePartida;
         
         this.ENDERECO_DO_SERVIDOR = enderecoDoServidor;
-        this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR);
+        this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR, inicioIntervaloUDP, fimIntervaloUDP);
         
         this.INTERPRETADOR.cadastrarComandos(this.criarComandosNecessarios());
         this.registrarFilas();
