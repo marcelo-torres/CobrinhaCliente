@@ -2,25 +2,14 @@ package stub;
 
 import Logger.Logger;
 import static Logger.Logger.Tipo.ERRO;
-import model.agentes.ControladorDePartida;
 import java.net.InetAddress;
 import java.util.LinkedList;
 import model.agentes.IControladorGeralVisaoStubCliente;
 import stub.comando.ComandoExibirMensagem;
-import stub.comando.controlador_de_partida.AdversarioSaiu;
-import stub.comando.controlador_de_partida.VoceGanhou;
-import stub.comando.controlador_de_partida.VocePerdeu;
-import stub.comando.gerenciador_de_udp.AtenderPedidoInicioDeAberturaUDP;
-import stub.comando.gerenciador_de_udp.ContinuarAberturaUDP;
-import stub.comando.gerenciador_de_udp.FecharConexaoUDP;
-import stub.comando.gerenciador_de_udp.IniciarFechamentoConexaoUDP;
-import stub.comando.gerenciador_de_udp.IniciarPedidoDeAberturaUDP;
+import stub.comando.controlador_de_partida.*;
+import stub.comando.gerenciador_de_udp.*;
 import stub.comunicacao.Comunicador;
 import stub.comando.Comando;
-import stub.comando.controlador_de_partida.EntregarQuadroComando;
-import stub.comando.controlador_de_partida.FalhaAoLogar;
-import stub.comando.controlador_de_partida.IrParaOHall;
-import stub.comando.controlador_de_partida.Logar;
 import stub.comunicacao.FilaMonitorada;
 
 /**
@@ -29,8 +18,9 @@ import stub.comunicacao.FilaMonitorada;
  */
 public class ControladorDeConexao extends Stub implements model.agentes.IJogadorVisaoAplicacaoCliente {
     
-    private final FilaMonitorada FILA_RETORNO_VD = new FilaMonitorada(100);
-    private final FilaMonitorada FILA_RETORNO_LOCAL_ATUAL = new FilaMonitorada(100);
+    private final FilaMonitorada FILA_RETORNO_INICIAR_PARTIDA = new FilaMonitorada(100);
+    private final FilaMonitorada FILA_RETORNO_DESISTIR_DE_PROCURAR_PARTIDA = new FilaMonitorada(100);
+    private final FilaMonitorada FILA_RETORNO_ENCERRAR_PARTIDA = new FilaMonitorada(100);
     
     private  IControladorGeralVisaoStubCliente CONTROLADOR_DE_PARTIDA;
     private final InetAddress ENDERECO_DO_SERVIDOR;
@@ -38,14 +28,15 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
     private IControladorGeralVisaoStubCliente controladorGeral;
     
     public ControladorDeConexao(
-            
+            IControladorGeralVisaoStubCliente controladorDePartida,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor) {
         super(Comunicador.Modo.CLIENTE,
                 enderecoDoServidor,
                 portaTCPDoServidor);
         
-               
+        this.CONTROLADOR_DE_PARTIDA = controladorDePartida;
+        
         this.ENDERECO_DO_SERVIDOR = enderecoDoServidor;
         this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR);
         
@@ -54,13 +45,14 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         super.iniciar();
     }
     
-    public void setControladorGeral(IControladorGeralVisaoStubCliente controladorDePartida){
+    /*public void setControladorGeral(IControladorGeralVisaoStubCliente controladorDePartida){
         this.controladorGeral = controladorDePartida;
-    }
+    }*/
     
     private void registrarFilas() {
-        this.INTERPRETADOR.cadastrarFilaDeRetorno("getVD", this.FILA_RETORNO_VD);
-        this.INTERPRETADOR.cadastrarFilaDeRetorno("getLocalAtual", this.FILA_RETORNO_LOCAL_ATUAL);
+        this.INTERPRETADOR.cadastrarFilaDeRetorno("iniciarPartida", this.FILA_RETORNO_INICIAR_PARTIDA);
+        this.INTERPRETADOR.cadastrarFilaDeRetorno("desistirDeProcurarPartida", this.FILA_RETORNO_DESISTIR_DE_PROCURAR_PARTIDA);
+        this.INTERPRETADOR.cadastrarFilaDeRetorno("encerrarPartida", this.FILA_RETORNO_ENCERRAR_PARTIDA);
     }
 
     @Override
@@ -73,31 +65,35 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         this.INTERPRETADOR.interpretar(mensagem);  
     }
     
+    @Override
+    protected void devolverRetorno(byte[] mensagemRetorno) {
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagemRetorno);
+    }
+    
     /* ########################### CHAMADAS DE RPC ########################## */
+    
+    @Override
+    public void iniciarSessao(String nome_jogador) {
+        byte[] mensagem = this.INTERPRETADOR.codificarIniciarSessao(nome_jogador);
+        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
+    }
     
     @Override
     public boolean iniciarPartida() {  
         byte[] mensagem = this.INTERPRETADOR.codificarIniciarPartida();
-        System.out.println("VOU ATIVAR A PARTIDA");
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
+        this.GERENCIADOR_CONEXAO_UDP.iniciarPedidoDeAberturaUDP();
         
-        
-        try {
-            this.GERENCIADOR_CONEXAO_UDP.iniciarPedidoDeAberturaUDP();
-            this.GERENCIADOR_CONEXAO_UDP.aguardarComunicacaoSerEstabelecida();
-        } catch (InterruptedException e) {
-            Logger.registrar(ERRO, new String[]{"CONTROLADOR_DE_CONEXAO"}, "Espera no iniciarPartida() interrompida", e);
-        }
-        return true;
+        return (Boolean) this.FILA_RETORNO_INICIAR_PARTIDA.remover();
     }
-
+    
     @Override
     public boolean desistirDeProcurarPartida() {
         byte[] mensagem = this.INTERPRETADOR.codificarDesistirDeProcurarPartida();
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
         this.GERENCIADOR_CONEXAO_UDP.iniciarFechamentoConexaoUDP();
         
-        return true;
+        return (Boolean) this.FILA_RETORNO_DESISTIR_DE_PROCURAR_PARTIDA.remover();
     }
     
     @Override
@@ -106,8 +102,9 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
         this.GERENCIADOR_CONEXAO_UDP.iniciarFechamentoConexaoUDP();
         
-        return true;
+        return (Boolean) this.FILA_RETORNO_ENCERRAR_PARTIDA.remover();
     }
+    
 
     @Override
     public void andarParaCima() {
@@ -133,46 +130,34 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         this.MENSAGEIRO.inserirFilaEnvioUDP(mensagem);
     }
     
-    
-    /*@Override
-    public double getVD() {
-        byte[] mensagem = this.INTERPRETADOR.codificarGetVD();
-        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
-        
-        // aguarda o retorno
-        Double retorno = (Double) this.FILA_RETORNO_VD.remover();
-        return retorno;
-    }
-
     @Override
-    public ILocal getLocalAtual() {
-        byte[] mensagem = this.INTERPRETADOR.codificarGetLocalAtual();
+    public void encerrarSessao() {
+        byte[] mensagem = this.INTERPRETADOR.codificarEncerrarSessao();
         this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
-        
-        // aguarda o retorno
-        ILocal retorno = (ILocal) this.FILA_RETORNO_LOCAL_ATUAL.remover();
-        return retorno;
     }
-
-    @Override
-    public void setLocalAtual(ILocal local) {
-        byte[] mensagem = this.INTERPRETADOR.codificarSetLocalAtual(local);
-        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagem);
-    }*/
     
     @Override
     protected LinkedList<Comando> criarComandosNecessarios() {
         
         LinkedList<Comando> listaDeComandos = new LinkedList<>();
+
+        // Comandos do controlador de partida
+        listaDeComandos.add(new NovoQuadro("novoQuadro", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new ExibirTelaSessao("exibirTelaSessao", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new ExibirTelaBusca("exibirTelaBusca", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new ExibirTelaJogo("exibirTelaJogo", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new ExibirTelaInicio("exibirTelaInicio", this.CONTROLADOR_DE_PARTIDA));
         
+        listaDeComandos.add(new Perdeu("perdeu", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new Ganhou("ganhou", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new Empatou("empatou", this.CONTROLADOR_DE_PARTIDA));
         listaDeComandos.add(new AdversarioSaiu("adversarioSaiu", this.CONTROLADOR_DE_PARTIDA));
-        listaDeComandos.add(new VoceGanhou("voceGanhou", this.CONTROLADOR_DE_PARTIDA));
-        listaDeComandos.add(new VocePerdeu("vocePerdeu", this.CONTROLADOR_DE_PARTIDA));
-        listaDeComandos.add(new IrParaOHall("irParaOHall", this.CONTROLADOR_DE_PARTIDA));
-        listaDeComandos.add(new Logar("logar", this.CONTROLADOR_DE_PARTIDA));
         listaDeComandos.add(new FalhaAoLogar("falhaAoLogar", this.CONTROLADOR_DE_PARTIDA));
-        listaDeComandos.add(new EntregarQuadroComando("entregarQuadro", this.CONTROLADOR_DE_PARTIDA));
+        listaDeComandos.add(new Falha("falha", this.CONTROLADOR_DE_PARTIDA));
         
+        listaDeComandos.add(new ProcurandoPartida("procurandoPartida", this.CONTROLADOR_DE_PARTIDA));
+        
+        // Comandos do gerenciador de UDP
         listaDeComandos.add(new ComandoExibirMensagem("exibirMensagem"));
         listaDeComandos.add(new AtenderPedidoInicioDeAberturaUDP("atenderPedidoInicioDeAberturaUDP", this.GERENCIADOR_CONEXAO_UDP));
         listaDeComandos.add(new ContinuarAberturaUDP("continuarAberturaUDP", this.GERENCIADOR_CONEXAO_UDP));
@@ -183,20 +168,4 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
         return listaDeComandos;
     }
     
-    @Override
-    protected void devolverRetorno(byte[] mensagemRetorno) {
-        this.MENSAGEIRO.inserirFilaEnvioTCP(mensagemRetorno);
-    }
-
-    @Override
-    public void iniciarSessao(String nome_jogador) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void encerrarSessao() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
 }
