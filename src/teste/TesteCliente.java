@@ -9,6 +9,14 @@ import stub.ControladorDeConexao;
 public class TesteCliente {
     
     public static void main(String[] args) {
+        teste();
+        
+        /*for(int i = 0; i < 10; i++) {
+            new Thread(new Runnable() {public void run(){TesteCliente.teste();}}).start();
+        }*/
+    }
+    
+    public static void teste() {
     
         InetAddress enderecoServidor = null;
         try {
@@ -27,6 +35,7 @@ public class TesteCliente {
         
         boolean r1 = controladorDeConexao.iniciarPartida();
         Logger.registrar(Logger.Tipo.INFO, new String[]{" ======== TESTE ======== ",}, "Retorno iniciarPartida(): " + r1);
+        esperar(300);
         boolean r2 = controladorDeConexao.desistirDeProcurarPartida();
         Logger.registrar(Logger.Tipo.INFO, new String[]{" ======== TESTE ======== ",}, "Retorno desistirDeProcurarPartida(): " + r2);
         
@@ -36,13 +45,17 @@ public class TesteCliente {
         controladorDeConexao.andarParaBaixo();
         controladorDeConexao.andarParaEsquerda();
         controladorDeConexao.andarParaDireita();
+        esperar(300);
         boolean r4 = controladorDeConexao.encerrarPartida();
         Logger.registrar(Logger.Tipo.INFO, new String[]{" ======== TESTE ======== ",}, "Retorno encerrarPartida(): " + r4);
         
-        try {new Thread().sleep(200);} catch(Exception e) {}
+        esperar(300);
         controladorDeConexao.close();
         
         Thread.getAllStackTraces().keySet().forEach((t) -> System.out.println(t.getName() + "  " + " Is Alive: " + t.isAlive()));
     }
-    
+ 
+    public static void esperar(int tempo) {
+        try {new Thread().sleep(tempo);} catch(Exception e) {}
+    }
 }
