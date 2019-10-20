@@ -310,6 +310,7 @@ public abstract class Stub implements Closeable {
         
         @Override
         public void uncaughtException(Thread th, Throwable ex) {
+            ex.printStackTrace();
             Logger.registrar(ERRO, new String[]{"STUB"}, "Erro na comunicacao: " + ex.getMessage());
             Logger.registrar(INFO, new String[]{"STUB"}, "Fechando STUB devido a falha de comunicacao");
             this.STUB.close();

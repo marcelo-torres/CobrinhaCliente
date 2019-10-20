@@ -52,10 +52,16 @@ public class TesteCliente {
         esperar(300);
         controladorDeConexao.close();
         
-        Thread.getAllStackTraces().keySet().forEach((t) -> System.out.println(t.getName() + "  " + " Is Alive: " + t.isAlive()));
+        
+        System.out.println("==== PROGRAMA CLIENTE ENCERRADO ====");
     }
  
     public static void esperar(int tempo) {
         try {new Thread().sleep(tempo);} catch(Exception e) {}
+    }
+    
+    public static void exibirThreadAtivas() {
+        System.out.println("Threads ativas:");
+        Thread.getAllStackTraces().keySet().forEach((t) -> System.out.println(t.getName() + "  " + " Is Alive: " + t.isAlive()));
     }
 }
