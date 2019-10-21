@@ -12,12 +12,12 @@ public class GerenciadorDeTelas{
     ILocal atual;
     
     public GerenciadorDeTelas(ControladorGeral ctr){
+        controlador = ctr;
         ctr_busca = new ControladorTelaBusca(this);
         ctr_jogo = new ControladorTelaJogo(this);
         ctr_inicio = new ControladorTelaInicio(this);
         ctr_sessao = new ControladorTelaSessao(this);
         ctr_inicio.inicializarTelaInicio();
-        controlador = ctr;
     }
     
     public void exibirSessao(){
