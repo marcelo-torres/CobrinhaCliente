@@ -9,8 +9,9 @@ import stub.comunicacao.GerenciadorDePortas;
 
 public class TesteCliente {
     
+    public static int cont = 0;
+    
     public static void main(String[] args) {
-        System.out.println("iniciando");
         String enderecoServidor = "127.0.0.1";
         int portaServidor = 2573;
         
@@ -19,18 +20,19 @@ public class TesteCliente {
             portaServidor = Integer.valueOf(args[1]);
         }
         
-        teste(enderecoServidor, portaServidor);
+        //teste(enderecoServidor, portaServidor);
         
         final String endS = enderecoServidor;
-        /*final int port = portaServidor;
-        for(int i = 0; i < 5; i++) {
+        final int port = portaServidor;
+        for(int i = 0; i < 10; i++) {
             new Thread(new Runnable() {public void run(){TesteCliente.teste(endS, port);}}).start();
             esperar(100);
-        }*/
+        }
     }
     
     public static void teste(String enderecoServ, int portaTCPServidor) {
-    
+        cont++;
+        
         InetAddress enderecoServidor = null;
         try {
             enderecoServidor = InetAddress.getByName(enderecoServ);
@@ -66,7 +68,7 @@ public class TesteCliente {
         controladorDeConexao.close();
         
         
-        System.out.println("==== PROGRAMA CLIENTE ENCERRADO ====");
+        System.out.println("==== PROGRAMA CLIENTE(" + cont + ") ENCERRADO ====");
     }
  
     public static void esperar(int tempo) {
