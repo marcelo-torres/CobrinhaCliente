@@ -20,8 +20,11 @@ public class TesteCliente {
         
         teste(enderecoServidor, portaServidor);
         
-        /*for(int i = 0; i < 10; i++) {
-            new Thread(new Runnable() {public void run(){TesteCliente.teste(enderecoServidor, portaServidor);}}).start();
+        final String endS = enderecoServidor;
+        /*final int port = portaServidor;
+        for(int i = 0; i < 5; i++) {
+            new Thread(new Runnable() {public void run(){TesteCliente.teste(endS, port);}}).start();
+            esperar(100);
         }*/
     }
     
@@ -35,7 +38,7 @@ public class TesteCliente {
         }     
         
         ControladorGeralTeste controladorGeral = new ControladorGeralTeste();
-        ControladorDeConexao controladorDeConexao = new ControladorDeConexao(controladorGeral, enderecoServidor, portaTCPServidor, 51311, 51320);
+        ControladorDeConexao controladorDeConexao = new ControladorDeConexao(controladorGeral, enderecoServidor, portaTCPServidor, 51311, -51320);
         controladorDeConexao.iniciarStub();
         
         controladorDeConexao.iniciarSessao("SESSAO_TESTE");

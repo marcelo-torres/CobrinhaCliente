@@ -11,6 +11,7 @@ import stub.comando.gerenciador_de_udp.*;
 import stub.comunicacao.Comunicador;
 import stub.comando.Comando;
 import stub.comunicacao.FilaMonitorada;
+import stub.comunicacao.GerenciadorDePortas;
 
 /**
  * Eh o Stub do cliente. Responsavel por esconder da aplicacao que a implementacao
@@ -31,16 +32,16 @@ public class ControladorDeConexao extends Stub implements model.agentes.IJogador
             IControladorGeralVisaoStubCliente controladorDePartida,
             InetAddress enderecoDoServidor,
             int portaTCPDoServidor,
-            int inicioIntervaloUDP,
-            int fimIntervaloUDP) {
+            GerenciadorDePortas gerenciadorDePortas) {
         super(Comunicador.Modo.CLIENTE,
+                gerenciadorDePortas,
                 enderecoDoServidor,
                 portaTCPDoServidor);
         
         this.CONTROLADOR_DE_PARTIDA = controladorDePartida;
         
         this.ENDERECO_DO_SERVIDOR = enderecoDoServidor;
-        this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR, inicioIntervaloUDP, fimIntervaloUDP);
+        this.GERENCIADOR_CONEXAO_UDP = new GerenciadorDeConexaoUDPRemota(this.MENSAGEIRO, this.ENDERECO_DO_SERVIDOR, this.INTERPRETADOR, gerenciadorDePortas);
         
         this.INTERPRETADOR.cadastrarComandos(this.criarComandosNecessarios());
         this.registrarFilas();

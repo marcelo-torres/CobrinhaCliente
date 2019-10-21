@@ -7,6 +7,7 @@ package model.agentes;
 
 import controller.GerenciadorDeTelas;
 import model.send.Arena;
+import stub.ControladorDeConexao;
 
 /**
  *
@@ -27,4 +28,6 @@ public interface IControladorGeralVisaoStubCliente {
     public void falha(String nome_inválido);
     
     public void procurandoPartida();
+
+    public void setJogador(IJogadorVisaoAplicacaoCliente CONTROLADOR_DECONEXAO);
 }

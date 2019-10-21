@@ -10,9 +10,8 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
     private String nomeJogador;
     GerenciadorDeTelas gerenciador;
 
-    public ControladorGeral(IJogadorVisaoAplicacaoCliente jg) {
-        jogador = jg;
-        gerenciador = new GerenciadorDeTelas(this);
+    public ControladorGeral() {
+        this.gerenciador = new GerenciadorDeTelas(this);
     }
         
     @Override
@@ -114,7 +113,7 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
 
 
     @Override
-    public void falha(String nome_inválido) {
+    public void falha(String nome_invalido) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -122,5 +121,10 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
     @Override
     public void procurandoPartida() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setJogador(IJogadorVisaoAplicacaoCliente jogador) {
+        this.jogador = jogador;
     }
 }

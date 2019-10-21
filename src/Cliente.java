@@ -3,34 +3,44 @@ import java.io.Closeable;
 import stub.comunicacao.FalhaDeComunicacaoEmTempoRealException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import nucleo.ControladorCliente;
+import model.agentes.IControladorGeralVisaoStubCliente;
 import stub.ControladorDeConexao;
+import stub.comunicacao.GerenciadorDePortas;
 
 public class Cliente implements Closeable {
     
     private final InetAddress ENDERECO_SERVIDOR;
     private final int PORTA_TCP_SERVIDOR;
+    private final GerenciadorDePortas GERENCIADOR_DE_PORTAS;
 
-    private final ControladorGeral CONTROLADOR_CLIENTE;
+    private final IControladorGeralVisaoStubCliente CONTROLADOR_GERAL;
     private final ControladorDeConexao CONTROLADOR_DECONEXAO;
     
     
     public Cliente(InetAddress enderecoServidor, int portaTCPServidor) {
         this.ENDERECO_SERVIDOR = enderecoServidor;
         this.PORTA_TCP_SERVIDOR = portaTCPServidor;
+        this.GERENCIADOR_DE_PORTAS = new GerenciadorDePortas(-1, 0);
         
-        this.CONTROLADOR_DECONEXAO = new ControladorDeConexao(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
-        this.CONTROLADOR_CLIENTE = new ControladorGeral(CONTROLADOR_DECONEXAO);
-        CONTROLADOR_DECONEXAO.setControladorGeral(CONTROLADOR_CLIENTE);
-        
-        //this.CONTROLADOR_CLIENTE = new ControladorCliente(this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR);
+        this.CONTROLADOR_GERAL = new ControladorGeral();          
+        this.CONTROLADOR_DECONEXAO = new ControladorDeConexao(this.CONTROLADOR_GERAL, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.GERENCIADOR_DE_PORTAS);
+        this.CONTROLADOR_GERAL.setJogador(this.CONTROLADOR_DECONEXAO);
     }
     
-    private void iniciar() {
+    public Cliente(InetAddress enderecoServidor, int portaTCPServidor, int inicioIntervaloUDP, int fimIntervaloUDP) {
+        this.ENDERECO_SERVIDOR = enderecoServidor;
+        this.PORTA_TCP_SERVIDOR = portaTCPServidor;
+        this.GERENCIADOR_DE_PORTAS = new GerenciadorDePortas(inicioIntervaloUDP, fimIntervaloUDP);
+        
+        this.CONTROLADOR_GERAL = new ControladorGeral();          
+        this.CONTROLADOR_DECONEXAO = new ControladorDeConexao(this.CONTROLADOR_GERAL, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.GERENCIADOR_DE_PORTAS);
+        this.CONTROLADOR_GERAL.setJogador(this.CONTROLADOR_DECONEXAO);
+    }
+    
+    public void iniciar() {
         try {
-            //this.CONTROLADOR_CLIENTE.executarSequenciaDeTestes();
-            System.out.println("Metodo iniciar acionado");
-                
+            // #### AQUI QUE AS COISAS ESTAO INICIADA
+            this.CONTROLADOR_DECONEXAO.iniciarStub();
         } catch(Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -40,7 +50,6 @@ public class Cliente implements Closeable {
     
     @Override
     public void close() {
-        System.out.println("encerrando, metodo close do cliente comentado, olhe la se der problema");
         //this.CONTROLADOR_CLIENTE.close();
     }
     
@@ -61,25 +70,17 @@ public class Cliente implements Closeable {
         } catch(FalhaDeComunicacaoEmTempoRealException e) {
             e.printStackTrace();
         }
-        
+
+        /*
         try{
             new Thread().sleep(20 * 1000);
         } catch(Exception e) {
             e.printStackTrace();
         }
-        
-        System.out.println("Vamos encerrar o cliente");
-        cliente.close();
-
-        
-        /*try{
-            new Thread().sleep(3 * 1000);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }*/
+        */
          
         //Ver threads q estao ativas
-        Thread.getAllStackTraces().keySet().forEach((t) -> System.out.println(t.getName() + "  " + " Is Alive: " + t.isAlive()));
+        //Thread.getAllStackTraces().keySet().forEach((t) -> System.out.println(t.getName() + "  " + " Is Alive: " + t.isAlive()));
         
     }
     
