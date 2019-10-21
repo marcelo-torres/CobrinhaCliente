@@ -25,7 +25,7 @@ public interface IControladorGeralVisaoStubCliente {
     public void empatou();
     public void adversarioSaiu();
     public void falhaAoLogar(String mensagemTextual);
-    public void falha(String nome_inválido);
+    public void falha(String nome_invalido);
     
     public void procurandoPartida();
 

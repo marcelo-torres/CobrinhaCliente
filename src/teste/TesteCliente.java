@@ -5,6 +5,7 @@ import controller.ControladorGeral;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import stub.ControladorDeConexao;
+import stub.comunicacao.GerenciadorDePortas;
 
 public class TesteCliente {
     
@@ -38,7 +39,8 @@ public class TesteCliente {
         }     
         
         ControladorGeralTeste controladorGeral = new ControladorGeralTeste();
-        ControladorDeConexao controladorDeConexao = new ControladorDeConexao(controladorGeral, enderecoServidor, portaTCPServidor, 51311, -51320);
+        GerenciadorDePortas gerenciadorDePortas = new GerenciadorDePortas();
+        ControladorDeConexao controladorDeConexao = new ControladorDeConexao(controladorGeral, enderecoServidor, portaTCPServidor, gerenciadorDePortas);
         controladorDeConexao.iniciarStub();
         
         controladorDeConexao.iniciarSessao("SESSAO_TESTE");

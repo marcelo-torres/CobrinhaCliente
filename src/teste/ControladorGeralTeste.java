@@ -2,6 +2,7 @@ package teste;
 
 import Logger.Logger;
 import model.agentes.IControladorGeralVisaoStubCliente;
+import model.agentes.IJogadorVisaoAplicacaoCliente;
 import model.send.Arena;
 
 public class ControladorGeralTeste implements IControladorGeralVisaoStubCliente {
@@ -64,6 +65,11 @@ public class ControladorGeralTeste implements IControladorGeralVisaoStubCliente 
     @Override
     public void procurandoPartida() {
         Logger.registrar(Logger.Tipo.INFO, new String[]{" ======== TESTE ======== ","CONTROLADOR_GERAL"}, "chamada procurandoPartida()");
+    }
+
+    @Override
+    public void setJogador(IJogadorVisaoAplicacaoCliente CONTROLADOR_DECONEXAO) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

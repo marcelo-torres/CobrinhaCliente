@@ -20,7 +20,7 @@ public class Cliente implements Closeable {
     public Cliente(InetAddress enderecoServidor, int portaTCPServidor) {
         this.ENDERECO_SERVIDOR = enderecoServidor;
         this.PORTA_TCP_SERVIDOR = portaTCPServidor;
-        this.GERENCIADOR_DE_PORTAS = new GerenciadorDePortas(-1, 0);
+        this.GERENCIADOR_DE_PORTAS = new GerenciadorDePortas();
         
         this.CONTROLADOR_GERAL = new ControladorGeral();          
         this.CONTROLADOR_DECONEXAO = new ControladorDeConexao(this.CONTROLADOR_GERAL, this.ENDERECO_SERVIDOR, this.PORTA_TCP_SERVIDOR, this.GERENCIADOR_DE_PORTAS);
@@ -42,9 +42,7 @@ public class Cliente implements Closeable {
             // #### AQUI QUE AS COISAS ESTAO INICIADA
             this.CONTROLADOR_DECONEXAO.iniciarStub();
         } catch(Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-            // TODO: salvar exception no log e tentar se reconectar
+            this.CONTROLADOR_GERAL.falha(e.getMessage());
         }
     }
     
