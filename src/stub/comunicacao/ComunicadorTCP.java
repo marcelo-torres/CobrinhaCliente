@@ -124,6 +124,7 @@ public class ComunicadorTCP extends Comunicador implements Closeable {
                     try {
                         Comunicador.MensagemComunicador envelope = new Comunicador.MensagemComunicador(this.COMUNICADOR.incrementarEObterNumeroDeSequenciaDeEnvio(), Comunicador.TipoMensagem.MENSAGEM_COMUM, mensagem);
                         this.WRAPPED_OUTPUT.writeAndFlush(envelope);
+                        System.out.println("Colocou No Socket");
                     } catch(IOException ioe) {
                         throw new FalhaDeComunicacaoEmTempoRealException("Nao foi possivel enviar a mensagem: " + ioe.getMessage());
                     }

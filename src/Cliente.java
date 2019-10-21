@@ -59,7 +59,7 @@ public class Cliente implements Closeable {
         } catch(UnknownHostException uhe) {
             throw new RuntimeException("Erro: " + uhe.getMessage());
         }     
-        int portaTCPServidor = 2573;
+        int portaTCPServidor = 1855;
         
         Cliente cliente = new Cliente(enderecoServidor, portaTCPServidor);
         
