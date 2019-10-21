@@ -20,14 +20,14 @@ public class TesteCliente {
             portaServidor = Integer.valueOf(args[1]);
         }
         
-        //teste(enderecoServidor, portaServidor);
+        teste(enderecoServidor, portaServidor);
         
-        final String endS = enderecoServidor;
+        /*final String endS = enderecoServidor;
         final int port = portaServidor;
         for(int i = 0; i < 10; i++) {
             new Thread(new Runnable() {public void run(){TesteCliente.teste(endS, port);}}).start();
             esperar(100);
-        }
+        }*/
     }
     
     public static void teste(String enderecoServ, int portaTCPServidor) {
