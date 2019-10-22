@@ -120,7 +120,7 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
 
     @Override
     public void procurandoPartida() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       gerenciador.exibirBusca();
     }
 
     @Override
