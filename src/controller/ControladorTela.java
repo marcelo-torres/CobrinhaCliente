@@ -24,4 +24,11 @@ public class ControladorTela implements ILocal{
         }
         else return null;
     }
+    
+    public void desativaTela(){
+        if(tela != null){
+            tela.setVisible(false);
+            tela = null;
+        }
+    }
 }

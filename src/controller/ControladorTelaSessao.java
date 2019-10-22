@@ -28,12 +28,4 @@ public class ControladorTelaSessao extends ControladorTela{
     public void encerrarSessao(){
         gerenciador.controlador.encerrarSessao();
     }
-    
-    public void desativaTela(){
-        tela.setVisible(false);
-        tela = null;
-    }
-    
-    
-    
 }

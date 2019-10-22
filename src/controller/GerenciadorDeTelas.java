@@ -21,18 +21,22 @@ public class GerenciadorDeTelas{
     }
     
     public void exibirSessao(){
+        ctr_inicio.desativaTela();
         ctr_sessao.inicializarTelaSessao();
     }
     
     public void exibirBusca(){
+        ctr_sessao.desativaTela();
         ctr_busca.inicializarTelaBusca();
     }
     
     public void exibirJogo(){
+        ctr_busca.desativaTela();
         ctr_jogo.inicializarTelaJogo();
     }
 
     public void exibirInicio(){
+        ctr_jogo.desativaTela();
         ctr_inicio.inicializarTelaInicio();
     }
     

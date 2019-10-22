@@ -15,8 +15,8 @@ public class Arena implements Serializable {
         altura = alt;
         largura = lar;
         tamanho = tam;
-        cobra1 = new Cobra();
-        cobra2 = new Cobra();
+        cobra1 = new Cobra('e', alt, lar, tam);
+        cobra2 = new Cobra('d', alt, lar, tam);
         alimentos = new ArrayList<>();
     }
     

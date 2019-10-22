@@ -35,11 +35,8 @@ public class ControladorTelaJogo extends ControladorTela{
         
         painel = new Painel(arena, this);
         
-        painel.iniciarPainel();
-        
-        iniciarJogo();
-        
         jpGame.add(painel);
+
         ((JLabel)getComponente("lbl_nome")).setText("Olá, " + gerenciador.controlador.getNomeJogador());
         
         Iterator it = mapaDeComponentes.values().iterator();
@@ -53,13 +50,12 @@ public class ControladorTelaJogo extends ControladorTela{
         
         tela.setVisible(true);
         
+        painel.iniciarPainel();
+        
+        iniciarJogo();
+        
         started = true;
         
-    }
-    
-    public void desativaTela(){
-        tela.setVisible(false);
-        tela = null;
     }
     
     public void iniciarJogo() {

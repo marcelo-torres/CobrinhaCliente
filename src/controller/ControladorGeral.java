@@ -63,27 +63,23 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
     @Override
     public void exibirTelaSessao(){
         gerenciador.exibirSessao();
-        gerenciador.ctr_inicio.desativaTela();
     }
 
     @Override
     public void exibirTelaBusca(){
         gerenciador.exibirBusca();
-        gerenciador.ctr_sessao.desativaTela();
     }
 
     
     @Override
     public void exibirTelaJogo(){
         gerenciador.exibirJogo();
-        gerenciador.ctr_busca.desativaTela();
     }
     
     
     @Override
     public void exibirTelaInicio(){
         gerenciador.exibirInicio();
-        gerenciador.ctr_jogo.desativaTela();
     }
 
     @Override

@@ -25,11 +25,5 @@ public class ControladorTelaInicio extends ControladorTela{
         gerenciador.controlador.iniciarSessao(((JTextField)getComponente("txt_nome")).getText());
     }
     
-    public void desativaTela(){
-        tela.setVisible(false);
-        tela = null;
-    }
-    
-    
     
 }
