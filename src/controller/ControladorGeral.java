@@ -88,23 +88,26 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
 
     @Override
     public void perdeu() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        gerenciador.ctr_jogo.perdeu();
+        gerenciador.exibirSessao();
     }
 
     @Override
     public void ganhou() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        gerenciador.ctr_jogo.ganhou();
+        gerenciador.exibirSessao();
     }
 
     @Override
     public void empatou() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+        gerenciador.ctr_jogo.empatou();
+        gerenciador.exibirSessao();    }
 
     @Override
     public void adversarioSaiu() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+        gerenciador.ctr_jogo.ganhou();
+        gerenciador.exibirSessao();    }
 
     @Override
     public void falhaAoLogar(String mensagemTextual) {
