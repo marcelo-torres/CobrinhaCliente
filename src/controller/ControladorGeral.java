@@ -116,14 +116,16 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-
+/*
     @Override
     public void procurandoPartida() {
        gerenciador.exibirBusca();
     }
+*/
 
     @Override
     public void setJogador(IJogadorVisaoAplicacaoCliente jogador) {
         this.jogador = jogador;
     }
+
 }
