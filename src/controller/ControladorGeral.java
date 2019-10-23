@@ -82,22 +82,24 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
         gerenciador.exibirInicio();
     }
 
+    public void finalizarTelaJogo(){
+        gerenciador.finalizarJogo();
+    }
+    
     @Override
     public void perdeu() {
         gerenciador.ctr_jogo.perdeu();
-        gerenciador.finalizarJogo();
     }
 
     @Override
     public void ganhou() {
         gerenciador.ctr_jogo.ganhou();
-        gerenciador.exibirSessao();
     }
 
     @Override
     public void empatou() {
         gerenciador.ctr_jogo.empatou();
-        gerenciador.exibirSessao();    }
+    }
 
     @Override
     public void adversarioSaiu() {
