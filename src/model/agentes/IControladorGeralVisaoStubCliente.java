@@ -26,8 +26,7 @@ public interface IControladorGeralVisaoStubCliente {
     public void adversarioSaiu();
     public void falhaAoLogar(String mensagemTextual);
     public void falha(String nome_invalido);
-    
-    public void procurandoPartida();
+ 
 
     public void setJogador(IJogadorVisaoAplicacaoCliente CONTROLADOR_DECONEXAO);
 }
