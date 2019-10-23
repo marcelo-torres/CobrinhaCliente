@@ -104,7 +104,7 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
     @Override
     public void adversarioSaiu() {
         gerenciador.ctr_jogo.ganhou();
-        gerenciador.exibirSessao();    }
+    }
 
     @Override
     public void falhaAoLogar(String nome_invalido) {
