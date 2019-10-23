@@ -24,26 +24,31 @@ public class GerenciadorDeTelas{
     public void exibirSessao(){
         ctr_inicio.desativaTela();
         ctr_sessao.inicializarTelaSessao();
+        atual = ctr_sessao;
     }
     
     public void exibirInicio(){
         ctr_sessao.desativaTela();
         ctr_inicio.inicializarTelaInicio();
+        atual = ctr_inicio;
     }
     
     public void exibirBusca(){
         ctr_sessao.desativaTela();
         ctr_busca.inicializarTelaBusca();
+        atual = ctr_busca;
     }
     
     public void exibirJogo(){
         ctr_busca.desativaTela();
         ctr_jogo.inicializarTelaJogo();
+        atual = ctr_jogo;
     }
 
     public void finalizarJogo(){
-        ctr_jogo.desativaTela();
-        ctr_sessao.inicializarTelaSessao();
+        //ctr_jogo.desativaTela();
+        //ctr_sessao.inicializarTelaSessao();
+        //atual = ctr_sessao;
     }
     
     public void novoQuadro(Arena arena){

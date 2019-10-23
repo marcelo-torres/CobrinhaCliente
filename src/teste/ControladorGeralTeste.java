@@ -67,7 +67,7 @@ public class ControladorGeralTeste implements IControladorGeralVisaoStubCliente 
     public void procurandoPartida() {
         Logger.registrar(Logger.Tipo.INFO, new String[]{" ======== TESTE ======== ","CONTROLADOR_GERAL"}, "chamada procurandoPartida()");
     }
-*/
+    */
 
     @Override
     public void setJogador(IJogadorVisaoAplicacaoCliente CONTROLADOR_DECONEXAO) {

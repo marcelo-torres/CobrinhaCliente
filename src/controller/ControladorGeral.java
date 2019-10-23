@@ -16,6 +16,8 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
         
     @Override
     public void novoQuadro(Arena arena){
+        
+        
         gerenciador.novoQuadro(arena);
     }
     
@@ -91,18 +93,20 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
     @Override
     public void ganhou() {
         gerenciador.ctr_jogo.ganhou();
-        gerenciador.exibirSessao();
+        gerenciador.finalizarJogo();
     }
 
     @Override
     public void empatou() {
         gerenciador.ctr_jogo.empatou();
-        gerenciador.exibirSessao();    }
+        gerenciador.finalizarJogo();   
+    }
 
     @Override
     public void adversarioSaiu() {
         gerenciador.ctr_jogo.ganhou();
-        gerenciador.exibirSessao();    }
+        gerenciador.finalizarJogo();  
+    }
 
     @Override
     public void falhaAoLogar(String nome_invalido) {
