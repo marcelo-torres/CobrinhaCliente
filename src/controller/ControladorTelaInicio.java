@@ -1,5 +1,6 @@
 package controller;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import view.Inicio;
 
@@ -23,6 +24,10 @@ public class ControladorTelaInicio extends ControladorTela{
 
     public void enviarNome(){
         gerenciador.controlador.iniciarSessao(((JTextField)getComponente("txt_nome")).getText());
+    }
+
+    public void falhaAoLogar(String mensagem) {
+        JOptionPane.showMessageDialog(null, mensagem);
     }
     
     

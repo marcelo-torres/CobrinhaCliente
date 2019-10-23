@@ -1,5 +1,6 @@
 package controller;
 
+import javax.swing.JOptionPane;
 import localizacoes.ILocal;
 import model.send.Arena;
 
@@ -49,5 +50,9 @@ public class GerenciadorDeTelas{
         if(atual == ctr_jogo){
             ctr_jogo.novoQuadro(arena);
         }
+    }
+
+    public void falha(String mensagemTextual) {
+        JOptionPane.showMessageDialog(null, mensagemTextual);
     }
 }

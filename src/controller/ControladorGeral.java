@@ -84,9 +84,8 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
 
     @Override
     public void perdeu() {
-        
         gerenciador.ctr_jogo.perdeu();
-        gerenciador.exibirSessao();
+        gerenciador.finalizarJogo();
     }
 
     @Override
@@ -106,14 +105,13 @@ public class ControladorGeral implements IControladorGeralVisaoStubCliente{
         gerenciador.exibirSessao();    }
 
     @Override
-    public void falhaAoLogar(String mensagemTextual) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void falhaAoLogar(String nome_invalido) {
+        gerenciador.ctr_inicio.falhaAoLogar(nome_invalido);
     }
 
-
     @Override
-    public void falha(String nome_invalido) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void falha(String mensagemTextual) {
+        gerenciador.falha(mensagemTextual);
     }
 
 
