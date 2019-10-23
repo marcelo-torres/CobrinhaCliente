@@ -20,6 +20,31 @@ public class Arena implements Serializable {
         alimentos = new ArrayList<>();
     }
     
+    public Arena copy(){
+        Arena copia = new Arena(altura, largura, tamanho);
+        copia.cobra1.apagaPosicoes();
+        copia.cobra2.apagaPosicoes();
+        
+        for(int i = 0; i < cobra1.vertices.size(); i++){
+            copia.cobra1.cor = cobra1.cor;
+            copia.cobra1.insertPosicao(cobra1.vertices.get(i)[0], cobra1.vertices.get(i)[1]);
+        }
+        
+        for(int i = 0; i < cobra2.vertices.size(); i++){
+            copia.cobra2.cor = cobra2.cor;
+            copia.cobra2.insertPosicao(cobra2.vertices.get(i)[0], cobra2.vertices.get(i)[1]);
+        }
+        
+        ArrayList<EntidadePosicionavel> copiaAlimentos = new ArrayList<>();
+        for(int i = 0; i < alimentos.size(); i++){
+            copiaAlimentos.add(new AlimentoBanana(alimentos.get(i).getPosicoes().get(0)[0], alimentos.get(i).getPosicoes().get(0)[1]));
+        }        
+        
+        copia.alimentos = copiaAlimentos;
+        
+        return copia;
+    }
+    
     /**
      * @return the altura
      */
@@ -93,5 +118,4 @@ public class Arena implements Serializable {
     public int getTamanho(){
         return tamanho;
     }
-    
 }
