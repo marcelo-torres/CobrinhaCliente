@@ -1,5 +1,6 @@
 package controller;
 
+import javax.swing.JOptionPane;
 import localizacoes.ILocal;
 import model.send.Arena;
 
@@ -25,6 +26,11 @@ public class GerenciadorDeTelas{
         ctr_sessao.inicializarTelaSessao();
     }
     
+    public void exibirInicio(){
+        ctr_sessao.desativaTela();
+        ctr_inicio.inicializarTelaInicio();
+    }
+    
     public void exibirBusca(){
         ctr_sessao.desativaTela();
         ctr_busca.inicializarTelaBusca();
@@ -35,14 +41,18 @@ public class GerenciadorDeTelas{
         ctr_jogo.inicializarTelaJogo();
     }
 
-    public void exibirInicio(){
+    public void finalizarJogo(){
         ctr_jogo.desativaTela();
-        ctr_inicio.inicializarTelaInicio();
+        ctr_sessao.inicializarTelaSessao();
     }
     
     public void novoQuadro(Arena arena){
         if(atual == ctr_jogo){
             ctr_jogo.novoQuadro(arena);
         }
+    }
+
+    public void falha(String mensagemTextual) {
+        JOptionPane.showMessageDialog(null, mensagemTextual);
     }
 }
